@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>IN AND OUT - Car & Carpet Wash</title>
+  <title>IN AND OUT - Car & Carpet Wash Arcade</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -15,7 +15,6 @@
       color: #fff;
     }
 
-    /* الشاشة الرئيسية لاختيار الألعاب */
     #hubScreen {
       position: fixed;
       inset: 0;
@@ -57,7 +56,7 @@
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(56, 189, 248, 0.2);
       border-radius: 16px;
-      padding: 16px 10px;
+      padding: 14px 10px;
       text-align: center;
       cursor: pointer;
       transition: all 0.2s;
@@ -67,11 +66,18 @@
       background: rgba(56, 189, 248, 0.15);
       border-color: #38bdf8;
     }
-    .game-card .icon { font-size: 32px; margin-bottom: 6px; }
+    .game-card .icon { font-size: 30px; margin-bottom: 6px; }
     .game-card .title { font-size: 14px; font-weight: bold; color: #f8fafc; }
-    .game-card .desc { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+    .game-card .badge {
+      display: inline-block;
+      font-size: 10px;
+      background: rgba(56, 189, 248, 0.2);
+      color: #38bdf8;
+      padding: 2px 8px;
+      border-radius: 8px;
+      margin-top: 4px;
+    }
 
-    /* الشريط العلوي المشترك وعداد النسبة */
     .top-bar {
       display: none;
       position: fixed;
@@ -99,50 +105,34 @@
     }
     .hud-title { font-weight: bold; font-size: 13px; color: #38bdf8; }
 
-    .progress-box {
-      display: none;
-      align-items: center;
-      gap: 8px;
+    .stat-badge {
+      background: #1e293b;
+      padding: 3px 8px;
+      border-radius: 10px;
       font-size: 12px;
       font-weight: bold;
-      color: #f1f5f9;
-    }
-    .progress-bar-bg {
-      width: 75px;
-      height: 8px;
-      background: #1e293b;
-      border-radius: 4px;
-      overflow: hidden;
+      color: #00e676;
       border: 1px solid rgba(255,255,255,0.1);
-    }
-    .progress-fill {
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(90deg, #38bdf8, #00e676);
-      transition: width 0.15s ease-out;
     }
 
     #gameCanvas {
       display: none;
       width: 100vw;
       height: 100vh;
-      cursor: crosshair;
     }
 
     #nozzleCursor {
       position: fixed;
-      width: 44px;
-      height: 44px;
+      width: 40px;
+      height: 40px;
       border: 2px dashed rgba(56, 189, 248, 0.9);
       border-radius: 50%;
       pointer-events: none;
       transform: translate(-50%, -50%);
       display: none;
       z-index: 5;
-      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
     }
 
-    /* أسلحة مسدس الضغط */
     .weapons-bar {
       display: none;
       position: fixed;
@@ -172,42 +162,7 @@
       color: #38bdf8;
     }
 
-    /* واجهة لعبة خط الإنتاج (Game 3) */
-    #factoryUI {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: #0f172a;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 10;
-      padding: 20px;
-    }
-    .stage-card {
-      background: #1e293b;
-      border: 2px solid #38bdf8;
-      border-radius: 20px;
-      padding: 24px;
-      text-align: center;
-      width: 100%;
-      max-width: 320px;
-    }
-    .stage-card h3 { font-size: 18px; margin-bottom: 8px; color: #38bdf8; }
-    .stage-card p { font-size: 13px; color: #94a3b8; margin-bottom: 20px; }
-    .stage-btn {
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #38bdf8, #0284c7);
-      border: none;
-      border-radius: 12px;
-      font-size: 16px;
-      font-weight: bold;
-      color: #04101e;
-      cursor: pointer;
-    }
-
-    /* واجهة لعبة عجلة الحظ (Game 4) */
+    /* واجهة لعبة عجلة الحظ */
     #wheelUI {
       display: none;
       position: fixed;
@@ -221,8 +176,8 @@
     }
     .wheel-container {
       position: relative;
-      width: 260px;
-      height: 260px;
+      width: 270px;
+      height: 270px;
       margin-bottom: 25px;
     }
     #wheelCanvas {
@@ -231,7 +186,7 @@
       border-radius: 50%;
       border: 4px solid #38bdf8;
       box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
-      transition: transform 3.5s cubic-bezier(0.15, 0.9, 0.2, 1);
+      transition: transform 4s cubic-bezier(0.12, 0.9, 0.18, 1);
     }
     .wheel-pointer {
       position: absolute;
@@ -241,8 +196,20 @@
       font-size: 26px;
       z-index: 2;
     }
+    .stage-btn {
+      width: 100%;
+      max-width: 250px;
+      padding: 14px;
+      background: linear-gradient(135deg, #38bdf8, #0284c7);
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #04101e;
+      cursor: pointer;
+    }
 
-    /* نافذة الفوز والحجز المشتركة */
+    /* نافذة الفوز والطلب */
     .win-modal {
       display: none;
       position: fixed;
@@ -307,7 +274,7 @@
 </head>
 <body>
 
-  <!-- الشاشة الرئيسية لاختيار الألعاب -->
+  <!-- القائمة الرئيسية -->
   <div id="hubScreen">
     <div class="brand-header">
       <svg viewBox="0 0 400 240" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -316,45 +283,39 @@
         <text x="200" y="146" font-family="'Impact', sans-serif" font-weight="bold" font-style="italic" font-size="44" fill="#ffffff" text-anchor="middle" letter-spacing="3">IN AND OUT</text>
         <text x="200" y="185" font-family="'Segoe UI', sans-serif" font-weight="900" font-size="16" fill="#38bdf8" text-anchor="middle" letter-spacing="4">CAR & CARPET WASH</text>
       </svg>
-      <h1>ألعاب وتحديات النظافة ✨</h1>
-      <p>العب، نظف، واكسب كود خصم فوري لخدماتنا!</p>
+      <h1>مركز تحديات النظافة الذكية ✨</h1>
+      <p>كل لعبة تمنحك كود خصم مختلف حسب سرعتك وذكائك!</p>
     </div>
 
     <div class="games-grid">
       <div class="game-card" onclick="launchGame('WASHER')">
         <div class="icon">🔫</div>
         <div class="title">مسدس الضغط</div>
-        <div class="desc">نظف السجادة بالماء والقنابل</div>
+        <span class="badge">خصم 20%</span>
       </div>
       <div class="game-card" onclick="launchGame('RUNNER')">
         <div class="icon">🏃‍♂️</div>
         <div class="title">رول السجاد</div>
-        <div class="desc">اجمع الصابون وتفادى البقع</div>
+        <span class="badge">خصم 25%</span>
       </div>
       <div class="game-card" onclick="launchGame('FACTORY')">
         <div class="icon">⚙️</div>
         <div class="title">المغسلة الذكية</div>
-        <div class="desc">عش تجربة خط الإنتاج خطوة بخطوة</div>
+        <span class="badge">خصم 15%</span>
       </div>
       <div class="game-card" onclick="launchGame('WHEEL')">
         <div class="icon">🎡</div>
         <div class="title">عجلة الحظ</div>
-        <div class="desc">لف العجلة واربح جائزتك فوراً</div>
+        <span class="badge">جوائز متنوعة</span>
       </div>
     </div>
   </div>
 
-  <!-- الشريط العلوي أثناء اللعب مع عداد النسبة -->
+  <!-- الشريط العلوي أثناء اللعب -->
   <div class="top-bar" id="gameTopBar">
     <button class="btn-back-hub" onclick="backToHub()">🏠 القائمة</button>
-    <div class="hud-title" id="hudTitle">تحدي النظافة</div>
-    <div class="progress-box" id="washerProgressBox">
-      <span>النظافة:</span>
-      <div class="progress-bar-bg">
-        <div class="progress-fill" id="progressFill"></div>
-      </div>
-      <span id="progressText">0%</span>
-    </div>
+    <div class="hud-title" id="hudTitle">التحدي</div>
+    <div class="stat-badge" id="statBadge">0%</div>
   </div>
 
   <div id="nozzleCursor"></div>
@@ -367,31 +328,21 @@
     <button class="weapon-btn" id="btnBomb">💣 قنبلة</button>
   </div>
 
-  <!-- واجهة لعبة خط الإنتاج (Game 3) -->
-  <div id="factoryUI">
-    <div class="stage-card">
-      <div id="factoryIcon" style="font-size: 44px; margin-bottom: 10px;">💨</div>
-      <h3 id="factoryStageTitle">المرحلة 1: نفض الأتربة</h3>
-      <p id="factoryStageDesc">اضغط باستمرار لتشغيل شفاط وضخ الهواء لإزالة الغبار العميق.</p>
-      <button class="stage-btn" id="factoryActionBtn">ابدأ التنفيض 💨</button>
-    </div>
-  </div>
-
-  <!-- واجهة لعبة عجلة الحظ (Game 4) -->
+  <!-- واجهة عجلة الحظ -->
   <div id="wheelUI">
     <div class="wheel-container">
       <div class="wheel-pointer">🔻</div>
       <canvas id="wheelCanvas" width="300" height="300"></canvas>
     </div>
-    <button class="stage-btn" id="spinWheelBtn" style="max-width: 250px;">لف العجلة الآن 🎯</button>
+    <button class="stage-btn" id="spinWheelBtn">لف العجلة واكسب 🎯</button>
   </div>
 
-  <!-- نافذة الفوز والحجز المشتركة -->
+  <!-- نافذة الفوز وتسجيل الحجز -->
   <div class="win-modal" id="winModal">
     <div class="modal-card">
-      <div style="font-size: 40px; margin-bottom: 6px;">🎉✨</div>
-      <h2>ألف مبروك! فزت بالخصم</h2>
-      <p id="winSubText">تم إتمام التحدي بنجاح، احجز الآن واستفد بالعرض!</p>
+      <div style="font-size: 38px; margin-bottom: 4px;">🏆🎉</div>
+      <h2 id="winMainTitle">ألف مبروك!</h2>
+      <p id="winSubText" style="font-size: 13px; color: #94a3b8; margin-bottom: 12px;"></p>
       
       <div class="discount-badge" id="discountBadge">كود الخصم: ...</div>
 
@@ -404,7 +355,7 @@
           <option value="غسيل وتلميع سيارة">غسيل وتلميع سيارات (Car Wash)</option>
           <option value="سجاد + سيارة (عرض خاص)">باقة كاملة: سجاد + غسيل سيارة</option>
         </select>
-        <button type="submit" class="submit-btn">تأكيد الحجز واستلام الكود عبر واتساب 💬</button>
+        <button type="submit" class="submit-btn">تأكيد الحجز وتطبيق الخصم عبر واتساب 💬</button>
       </form>
     </div>
   </div>
@@ -414,20 +365,18 @@
     const BUSINESS_WHATSAPP_PHONE = "201009204577";
 
     let currentGame = null;
-    let uniqueDiscountCode = "INOUT-" + Math.floor(1000 + Math.random() * 9000);
+    let currentDiscountCode = "";
+    let currentDiscountOffer = "";
 
     const hubScreen = document.getElementById('hubScreen');
     const topBar = document.getElementById('gameTopBar');
     const hudTitle = document.getElementById('hudTitle');
-    const washerProgressBox = document.getElementById('washerProgressBox');
-    const progressFill = document.getElementById('progressFill');
-    const progressText = document.getElementById('progressText');
+    const statBadge = document.getElementById('statBadge');
     const nozzleCursor = document.getElementById('nozzleCursor');
 
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     const washerWeapons = document.getElementById('washerWeapons');
-    const factoryUI = document.getElementById('factoryUI');
     const wheelUI = document.getElementById('wheelUI');
     const winModal = document.getElementById('winModal');
     const discountBadge = document.getElementById('discountBadge');
@@ -441,15 +390,13 @@
       height = canvas.height = window.innerHeight;
     });
 
-    /* محرك الصوت الشامل لضغط الماء والانفجارات المائية */
+    /* Audio Synthesizer */
     let audioCtx = null;
     let hoseNoiseGain = null;
 
     function unlockAudio() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        // 1. مولد صوت ضغط وتدفق ماء المسدس المستمر (Hose Sound)
         const bufferSize = audioCtx.sampleRate * 2;
         const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
         const output = noiseBuffer.getChannelData(0);
@@ -486,11 +433,8 @@
       if (active && navigator.vibrate) navigator.vibrate(25);
     }
 
-    // 2. صوت انفجار مائي واقعي (Water Bomb Explosion ASMR)
-    function playWaterExplosionSound() {
+    function playWaterExplosion() {
       unlockAudio();
-
-      // دوي انفجار مائي عميق (Heavy Thump)
       const subOsc = audioCtx.createOscillator();
       const subGain = audioCtx.createGain();
       subOsc.type = 'sine';
@@ -503,43 +447,7 @@
       subOsc.start();
       subOsc.stop(audioCtx.currentTime + 0.6);
 
-      // رذاذ تكسر الماء والرغوة العنيف
-      const bufferSize = audioCtx.sampleRate * 0.5;
-      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
-
-      const noise = audioCtx.createBufferSource();
-      noise.buffer = noiseBuffer;
-      const noiseFilter = audioCtx.createBiquadFilter();
-      noiseFilter.type = 'lowpass';
-      noiseFilter.frequency.setValueAtTime(800, audioCtx.currentTime);
-
-      const splashGain = audioCtx.createGain();
-      splashGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-      splashGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-
-      noise.connect(noiseFilter);
-      noiseFilter.connect(splashGain);
-      splashGain.connect(audioCtx.destination);
-      noise.start();
-
       if (navigator.vibrate) navigator.vibrate([60, 30, 90]);
-    }
-
-    function playSplashSound(pitch = 200, dur = 0.3) {
-      unlockAudio();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + dur);
-      gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + dur);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + dur);
     }
 
     function playBeep(freq = 400, dur = 0.2) {
@@ -555,10 +463,13 @@
       osc.stop(audioCtx.currentTime + dur);
     }
 
-    function triggerWin(msg) {
+    function triggerWin(title, sub, discountText, codePrefix) {
       setHoseSound(false);
-      document.getElementById('winSubText').innerText = msg;
-      discountBadge.innerText = `كود الخصم: ${uniqueDiscountCode} (خصم 20%)`;
+      currentDiscountOffer = discountText;
+      currentDiscountCode = `${codePrefix}-${Math.floor(1000 + Math.random() * 9000)}`;
+      document.getElementById('winMainTitle').innerText = title;
+      document.getElementById('winSubText').innerText = sub;
+      discountBadge.innerText = `كود الهدية: ${currentDiscountCode} (${discountText})`;
       winModal.classList.add('active');
     }
 
@@ -568,8 +479,6 @@
       canvas.style.display = 'none';
       nozzleCursor.style.display = 'none';
       washerWeapons.style.display = 'none';
-      washerProgressBox.style.display = 'none';
-      factoryUI.style.display = 'none';
       wheelUI.style.display = 'none';
       topBar.style.display = 'none';
       winModal.classList.remove('active');
@@ -596,12 +505,10 @@
 
     function initWasherGame() {
       hudTitle.innerText = "مسدس الضغط";
-      washerProgressBox.style.display = 'flex';
+      statBadge.innerText = "0%";
       canvas.style.display = 'block';
       washerWeapons.style.display = 'flex';
       isWasherWon = false;
-      progressFill.style.width = '0%';
-      progressText.innerText = '0%';
 
       cleanCanvas = document.createElement('canvas');
       cleanCtx = cleanCanvas.getContext('2d');
@@ -610,15 +517,11 @@
       cleanCanvas.width = dirtyCanvas.width = width;
       cleanCanvas.height = dirtyCanvas.height = height;
 
-      // رسم السجادة النظيفة
       cleanCtx.fillStyle = '#0f172a';
       cleanCtx.fillRect(0, 0, width, height);
       cleanCtx.strokeStyle = '#38bdf8';
       cleanCtx.lineWidth = 12;
       cleanCtx.strokeRect(25, 25, width - 50, height - 50);
-      cleanCtx.strokeStyle = '#f59e0b';
-      cleanCtx.lineWidth = 4;
-      cleanCtx.strokeRect(40, 40, width - 80, height - 80);
 
       cleanCtx.fillStyle = '#1e3a8a';
       cleanCtx.beginPath();
@@ -630,17 +533,6 @@
       cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.18, 0, Math.PI * 2);
       cleanCtx.fill();
 
-      cleanCtx.fillStyle = '#f59e0b';
-      cleanCtx.beginPath();
-      cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.09, 0, Math.PI * 2);
-      cleanCtx.fill();
-
-      cleanCtx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-      cleanCtx.font = 'bold 26px sans-serif';
-      cleanCtx.textAlign = 'center';
-      cleanCtx.fillText('IN AND OUT CLEAN', width / 2, height / 2 + Math.min(width, height) * 0.36);
-
-      // رسم طبقة الأوساخ
       dirtyCtx.fillStyle = '#38220f';
       dirtyCtx.fillRect(0, 0, width, height);
       for (let i = 0; i < 40; i++) {
@@ -667,47 +559,21 @@
       dirtyCtx.arc(x, y, 36, 0, Math.PI * 2);
       dirtyCtx.fill();
       dirtyCtx.globalCompositeOperation = 'source-over';
-
-      for (let i = 0; i < 4; i++) {
-        waterParticles.push({
-          x: x + (Math.random() - 0.5) * 20,
-          y: y + (Math.random() - 0.5) * 20,
-          vx: (Math.random() - 0.5) * 6,
-          vy: (Math.random() - 0.5) * 6,
-          size: Math.random() * 4 + 2,
-          alpha: 0.8
-        });
-      }
-      triggerProgressCheck();
+      calculateWasherCleanliness();
     }
 
     function washBucket(x, y) {
-      playSplashSound(140, 0.4);
+      playBeep(220, 0.3);
       dirtyCtx.globalCompositeOperation = 'destination-out';
       dirtyCtx.beginPath();
       dirtyCtx.arc(x, y, 95, 0, Math.PI * 2);
       dirtyCtx.fill();
       dirtyCtx.globalCompositeOperation = 'source-over';
-
       shockwaves.push({ x: x, y: y, radius: 10, maxRadius: 100, alpha: 0.9 });
-
-      for (let i = 0; i < 40; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 8 + 3;
-        waterParticles.push({
-          x: x,
-          y: y,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          size: Math.random() * 8 + 4,
-          alpha: 0.95
-        });
-      }
-      calculateCleanliness();
+      calculateWasherCleanliness();
     }
 
     function throwBomb(targetX, targetY) {
-      playSplashSound(350, 0.2);
       activeBombs.push({
         startX: width / 2,
         startY: height + 30,
@@ -722,72 +588,44 @@
     }
 
     function explodeBomb(x, y) {
-      playWaterExplosionSound(); // صوت الانفجار المائي الحقيقي
-
+      playWaterExplosion();
       dirtyCtx.globalCompositeOperation = 'destination-out';
       dirtyCtx.beginPath();
       dirtyCtx.arc(x, y, 175, 0, Math.PI * 2);
       dirtyCtx.fill();
       dirtyCtx.globalCompositeOperation = 'source-over';
-
       shockwaves.push({ x: x, y: y, radius: 15, maxRadius: 180, alpha: 1.0 });
-
-      for (let i = 0; i < 80; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 15 + 4;
-        waterParticles.push({
-          x: x,
-          y: y,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          size: Math.random() * 10 + 5,
-          alpha: 1.0
-        });
-      }
-      calculateCleanliness();
+      calculateWasherCleanliness();
     }
 
-    function calculateCleanliness() {
+    function calculateWasherCleanliness() {
       if (isWasherWon || currentGame !== 'WASHER') return;
-
       const imgData = dirtyCtx.getImageData(0, 0, width, height).data;
-      let totalPixels = 0;
-      let cleanPixels = 0;
-
+      let total = 0, clean = 0;
       for (let i = 3; i < imgData.length; i += 64) {
-        totalPixels++;
-        if (imgData[i] === 0) cleanPixels++;
+        total++;
+        if (imgData[i] === 0) clean++;
       }
-
-      const percent = Math.min(100, Math.round((cleanPixels / totalPixels) * 100));
-      progressFill.style.width = percent + '%';
-      progressText.innerText = percent + '%';
+      const percent = Math.min(100, Math.round((clean / total) * 100));
+      statBadge.innerText = percent + '%';
 
       if (percent >= 88 && !isWasherWon) {
         isWasherWon = true;
         setHoseSound(false);
         setTimeout(() => {
-          triggerWin("تم تنظيف السجادة بنسبة 100% بنجاح وسرعة فائقة!");
+          triggerWin("نظافة فائقة بمسدس الضغط!", "أتممت تنظيف السجادة بالكامل ببراعة!", "خصم 20%", "WASHER20");
         }, 400);
       }
     }
 
-    let checkThrottle = 0;
-    function triggerProgressCheck() {
-      checkThrottle++;
-      if (checkThrottle % 8 === 0) {
-        calculateCleanliness();
-      }
-    }
-
-    /* ================= 2. لعبة رول السجاد السريع (RUNNER) ================= */
-    let runnerPlayer = { x: 0, targetX: 0, y: 0, score: 0 };
+    /* ================= 2. لعبة رول السجاد السريع (RUNNER - صعب وذكي) ================= */
+    let runnerPlayer = { x: 0, targetX: 0, y: 0, score: 0, health: 3, speed: 6 };
     let runnerItems = [];
     let runnerRunning = false;
 
     function initRunnerGame() {
-      hudTitle.innerText = "رول السجاد: اجمع 5 صابونات";
-      washerProgressBox.style.display = 'none';
+      hudTitle.innerText = "رول السجاد";
+      statBadge.innerText = "صابون: 0/8 | ❤️ 3";
       canvas.style.display = 'block';
       washerWeapons.style.display = 'none';
       nozzleCursor.style.display = 'none';
@@ -796,54 +634,57 @@
       runnerPlayer.targetX = width / 2;
       runnerPlayer.y = height - 120;
       runnerPlayer.score = 0;
+      runnerPlayer.health = 3;
+      runnerPlayer.speed = 6.5;
       runnerItems = [];
       runnerRunning = true;
     }
 
-    /* ================= 3. لعبة خط إنتاج المغسلة الذكية (FACTORY) ================= */
-    const factoryStages = [
-      { icon: "💨", title: "1. نفض الأتربة", desc: "شفط وإزالة الأتربة العميقة بقوة الهواء", btn: "شغل النفاض 💨" },
-      { icon: "🧼", title: "2. ضخ الرغوة الفعالة", desc: "توزيع رغوة الشامبو الإيطالي المركز", btn: "ضخ الرغوة 🧼" },
-      { icon: "🔄", title: "3. الفرشاة الدوارة", desc: "فرك وتفتيت أصعب البقع بدون إجهاد الأنسجة", btn: "تشغيل الفرشاة 🔄" },
-      { icon: "✨", title: "4. التعطير والتغليف", desc: "تعقيم بالبخار، تعطير فرنسي، وتغليف حراري", btn: "تغليف وتسليم ✨" }
-    ];
-    let currentFactoryStep = 0;
+    /* ================= 3. لعبة المغسلة الذكية الديناميكية (FACTORY - Conveyor Belt Action) ================= */
+    let factoryRunning = false;
+    let factoryTool = "VACUUM"; // VACUUM, FOAM, BRUSH
+    let conveyorCarpetY = -200;
+    let carpetStains = [];
+    let factoryScore = 0;
 
     function initFactoryGame() {
       hudTitle.innerText = "خط الإنتاج الذكي";
-      washerProgressBox.style.display = 'none';
-      factoryUI.style.display = 'flex';
-      currentFactoryStep = 0;
-      updateFactoryUI();
-    }
+      statBadge.innerText = "النظافة: 0/10";
+      canvas.style.display = 'block';
+      washerWeapons.style.display = 'none';
+      nozzleCursor.style.display = 'none';
 
-    function updateFactoryUI() {
-      const stage = factoryStages[currentFactoryStep];
-      hudTitle.innerText = `خط الإنتاج (${currentFactoryStep + 1}/4)`;
-      document.getElementById('factoryIcon').innerText = stage.icon;
-      document.getElementById('factoryStageTitle').innerText = stage.title;
-      document.getElementById('factoryStageDesc').innerText = stage.desc;
-      document.getElementById('factoryActionBtn').innerText = stage.btn;
-    }
+      factoryRunning = true;
+      conveyorCarpetY = 50;
+      factoryScore = 0;
+      carpetStains = [];
 
-    document.getElementById('factoryActionBtn').onclick = () => {
-      playBeep(450 + currentFactoryStep * 100, 0.2);
-      currentFactoryStep++;
-      if (currentFactoryStep < factoryStages.length) {
-        updateFactoryUI();
-      } else {
-        triggerWin("تمت مراحل الغسيل والتعطير الاحترافي لسجادتك بالكامل!");
+      // توليد 10 بقع متفرقة على السجادة المتحركة
+      for (let i = 0; i < 10; i++) {
+        carpetStains.push({
+          relX: (Math.random() - 0.5) * (width * 0.55),
+          relY: i * 80 + 80,
+          cleaned: false,
+          type: i % 2 === 0 ? "طين" : "قهوة"
+        });
       }
-    };
+    }
 
-    /* ================= 4. لعبة عجلة الحظ (WHEEL) ================= */
+    /* ================= 4. لعبة عجلة الحظ (WHEEL - جوائز متنوعة) ================= */
     const wheelCanvas = document.getElementById('wheelCanvas');
     const wheelCtx = wheelCanvas.getContext('2d');
-    const wheelPrizes = ["خصم 20%", "تعطير مجاني", "خصم 15%", "غسيل سيارة هدية", "خصم 25%", "توصيل مجاني"];
+    const wheelPrizes = [
+      { text: "خصم 25%", code: "LUCKY25" },
+      { text: "تعطير وتغليف مجاناً", code: "FREESCENT" },
+      { text: "خصم 15%", code: "LUCKY15" },
+      { text: "غسيل سيارة VIP هدية", code: "VIPCAR" },
+      { text: "خصم 10%", code: "LUCKY10" },
+      { text: "شحن وتوصيل مجاني", code: "FREESHIP" }
+    ];
 
     function initWheelGame() {
-      hudTitle.innerText = "عجلة الحظ والنظافة";
-      washerProgressBox.style.display = 'none';
+      hudTitle.innerText = "عجلة الحظ";
+      statBadge.innerText = "فرصة واحدة";
       wheelUI.style.display = 'flex';
       drawWheel();
     }
@@ -868,21 +709,25 @@
         wheelCtx.fillStyle = '#ffffff';
         wheelCtx.font = 'bold 12px Segoe UI';
         wheelCtx.textAlign = 'right';
-        wheelCtx.fillText(wheelPrizes[i], 135, 4);
+        wheelCtx.fillText(wheelPrizes[i].text, 135, 4);
         wheelCtx.restore();
       }
     }
 
     document.getElementById('spinWheelBtn').onclick = () => {
       playBeep(600, 0.4);
-      const randDeg = Math.floor(1800 + Math.random() * 1440);
-      wheelCanvas.style.transform = `rotate(${randDeg}deg)`;
+      const selectedIndex = Math.floor(Math.random() * wheelPrizes.length);
+      const sliceDeg = 360 / wheelPrizes.length;
+      const targetDeg = 1800 + (360 - (selectedIndex * sliceDeg + sliceDeg / 2));
+
+      wheelCanvas.style.transform = `rotate(${targetDeg}deg)`;
       document.getElementById('spinWheelBtn').disabled = true;
 
       setTimeout(() => {
-        triggerWin("مبروك! فزت بخصم فوري وعروض خاصة على خدماتنا!");
+        const prize = wheelPrizes[selectedIndex];
+        triggerWin("مبروك! ربحت من عجلة الحظ", `ربحت جائزة حصرية: ${prize.text}`, prize.text, prize.code);
         document.getElementById('spinWheelBtn').disabled = false;
-      }, 3600);
+      }, 4200);
     };
 
     /* أحداث اللمس والتحكم العام */
@@ -890,7 +735,6 @@
       if (currentGame === 'WASHER') {
         if (e.target.closest('.weapons-bar') || e.target.closest('.top-bar') || e.target.closest('#winModal')) return;
         unlockAudio();
-
         if (selectedWeapon === 'HOSE') {
           isWashing = true;
           nozzleCursor.style.display = 'block';
@@ -905,30 +749,42 @@
         }
       } else if (currentGame === 'RUNNER') {
         runnerPlayer.targetX = e.clientX;
+      } else if (currentGame === 'FACTORY') {
+        // تنظيف البقع في خط الإنتاج باللمس السريع عليها
+        carpetStains.forEach(stain => {
+          const stainScreenX = (width / 2) + stain.relX;
+          const stainScreenY = conveyorCarpetY + stain.relY;
+          if (!stain.cleaned && Math.hypot(e.clientX - stainScreenX, e.clientY - stainScreenY) < 45) {
+            stain.cleaned = true;
+            factoryScore++;
+            playBeep(650, 0.1);
+            statBadge.innerText = `النظافة: ${factoryScore}/10`;
+            if (factoryScore >= 10) {
+              factoryRunning = false;
+              triggerWin("كفاءة خط الإنتاج 100%!", "قضيت على كل البقع بدقة واحترافية!", "خصم 15%", "FACTORY15");
+            }
+          }
+        });
       }
     });
 
     window.addEventListener('pointermove', (e) => {
-      if (currentGame === 'WASHER') {
-        if (selectedWeapon === 'HOSE') {
-          nozzleCursor.style.left = `${e.clientX}px`;
-          nozzleCursor.style.top = `${e.clientY}px`;
-          if (isWashing) washHose(e.clientX, e.clientY);
-        }
+      if (currentGame === 'WASHER' && selectedWeapon === 'HOSE') {
+        nozzleCursor.style.left = `${e.clientX}px`;
+        nozzleCursor.style.top = `${e.clientY}px`;
+        if (isWashing) washHose(e.clientX, e.clientY);
       } else if (currentGame === 'RUNNER') {
         runnerPlayer.targetX = e.clientX;
       }
     });
 
-    const stopWasherTouch = () => {
+    window.addEventListener('pointerup', () => {
       if (currentGame === 'WASHER') {
         isWashing = false;
         nozzleCursor.style.display = 'none';
         setHoseSound(false);
       }
-    };
-    window.addEventListener('pointerup', stopWasherTouch);
-    window.addEventListener('pointercancel', stopWasherTouch);
+    });
 
     /* حلقة التحديث والرسم الرئيسية */
     function loop() {
@@ -937,7 +793,6 @@
         ctx.drawImage(cleanCanvas, 0, 0);
         ctx.drawImage(dirtyCanvas, 0, 0);
 
-        // موجات الصدمة الانفجارية
         for (let i = shockwaves.length - 1; i >= 0; i--) {
           const sw = shockwaves[i];
           sw.radius += (sw.maxRadius - sw.radius) * 0.18;
@@ -955,30 +810,16 @@
           }
         }
 
-        // قنابل الماء مع مسار الطيران والنبض
         for (let i = activeBombs.length - 1; i >= 0; i--) {
           const b = activeBombs[i];
           b.timer--;
-
           const progress = 1 - (b.timer / b.totalTime);
           b.currentX = b.startX + (b.targetX - b.startX) * progress;
-          const arcY = Math.sin(progress * Math.PI) * 140;
-          b.currentY = (b.startY + (b.targetY - b.startY) * progress) - arcY;
+          b.currentY = (b.startY + (b.targetY - b.startY) * progress) - Math.sin(progress * Math.PI) * 140;
 
-          b.rotation += 0.15;
-          const pulse = 1 + Math.sin(progress * Math.PI * 4) * 0.25;
-
-          ctx.save();
-          ctx.translate(b.currentX, b.currentY);
-          ctx.rotate(b.rotation);
-          ctx.scale(pulse, pulse);
-          ctx.shadowColor = '#38bdf8';
-          ctx.shadowBlur = 15;
-          ctx.font = '42px sans-serif';
+          ctx.font = '40px sans-serif';
           ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText('💣', 0, 0);
-          ctx.restore();
+          ctx.fillText('💣', b.currentX, b.currentY);
 
           if (b.timer <= 0) {
             explodeBomb(b.targetX, b.targetY);
@@ -986,58 +827,56 @@
           }
         }
 
-        // رذاذ الماء والرغوة
-        for (let i = 0; i < waterParticles.length; i++) {
-          const p = waterParticles[i];
-          p.x += p.vx;
-          p.y += p.vy;
-          p.alpha -= 0.03;
-          if (p.alpha > 0) {
-            ctx.fillStyle = `rgba(56, 189, 248, ${p.alpha})`;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            ctx.fill();
-          }
-        }
-        waterParticles = waterParticles.filter(p => p.alpha > 0);
-
       } else if (currentGame === 'RUNNER' && runnerRunning) {
         ctx.clearRect(0, 0, width, height);
 
-        ctx.fillStyle = '#0f172a';
+        ctx.fillStyle = '#0b1320';
         ctx.fillRect(0, 0, width, height);
-        ctx.strokeStyle = '#38bdf8';
-        ctx.lineWidth = 4;
-        ctx.strokeRect(30, 0, width - 60, height);
 
-        runnerPlayer.x += (runnerPlayer.targetX - runnerPlayer.x) * 0.15;
-        ctx.font = '38px sans-serif';
+        // خط سير السجاد
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(25, 0, width - 50, height);
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(25, 0, width - 50, height);
+
+        runnerPlayer.x += (runnerPlayer.targetX - runnerPlayer.x) * 0.18;
+        ctx.font = '36px sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText('🧻', runnerPlayer.x, runnerPlayer.y);
 
-        if (Math.random() < 0.04) {
+        if (Math.random() < 0.05) {
+          const isBad = Math.random() > 0.45;
           runnerItems.push({
             x: 50 + Math.random() * (width - 100),
             y: -30,
-            type: Math.random() > 0.3 ? 'SOAP' : 'MUD'
+            type: isBad ? (Math.random() > 0.5 ? 'MUD' : 'OIL') : 'SOAP'
           });
         }
 
         for (let i = runnerItems.length - 1; i >= 0; i--) {
           const item = runnerItems[i];
-          item.y += 5;
-          ctx.fillText(item.type === 'SOAP' ? '🧼' : '☕', item.x, item.y);
+          item.y += runnerPlayer.speed;
+          ctx.font = '30px sans-serif';
+          ctx.fillText(item.type === 'SOAP' ? '🧼' : (item.type === 'OIL' ? '🛢️' : '☕'), item.x, item.y);
 
-          if (Math.hypot(item.x - runnerPlayer.x, item.y - runnerPlayer.y) < 40) {
+          if (Math.hypot(item.x - runnerPlayer.x, item.y - runnerPlayer.y) < 38) {
             if (item.type === 'SOAP') {
               runnerPlayer.score++;
-              playBeep(600, 0.1);
-              if (runnerPlayer.score >= 5) {
+              playBeep(650, 0.1);
+              statBadge.innerText = `صابون: ${runnerPlayer.score}/8 | ❤️ ${runnerPlayer.health}`;
+              if (runnerPlayer.score >= 8) {
                 runnerRunning = false;
-                triggerWin("جمعت كل الصابون المطلوب ونظفت سجادتك بنجاح!");
+                triggerWin("احتراف وسرعة رول السجاد!", "حققت أعلى نقاط بتفادي كل العوائق!", "خصم 25% (الأعلى)", "RUNNER25");
               }
             } else {
-              playBeep(150, 0.2);
+              runnerPlayer.health--;
+              playBeep(130, 0.3);
+              statBadge.innerText = `صابون: ${runnerPlayer.score}/8 | ❤️ ${runnerPlayer.health}`;
+              if (runnerPlayer.health <= 0) {
+                runnerRunning = false;
+                triggerWin("محاولة جيدة في تفادي البقع!", "حصلت على خصم تشجيعي لتنظيف سجادك وسياراتك!", "خصم 10%", "CLEAN10");
+              }
             }
             runnerItems.splice(i, 1);
           } else if (item.y > height + 40) {
@@ -1045,20 +884,69 @@
           }
         }
 
+      } else if (currentGame === 'FACTORY' && factoryRunning) {
+        ctx.clearRect(0, 0, width, height);
+
+        // رسم سير خط الإنتاج المعدني المتحرك
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(0, 0, width, height);
+
+        conveyorCarpetY += 1.6; // حركة السير المستمرة
+        if (conveyorCarpetY > height) conveyorCarpetY = -700;
+
+        // السجادة الكبيرة المتحركة
+        const carpetW = width * 0.75;
+        const carpetH = 900;
+        const carpetX = (width - carpetW) / 2;
+
+        ctx.fillStyle = '#b91c1c';
+        ctx.fillRect(carpetX, conveyorCarpetY, carpetW, carpetH);
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 6;
+        ctx.strokeRect(carpetX, conveyorCarpetY, carpetW, carpetH);
+
+        // رسم البقع التفاعلية على السجادة
+        carpetStains.forEach(stain => {
+          const stainScreenX = (width / 2) + stain.relX;
+          const stainScreenY = conveyorCarpetY + stain.relY;
+
+          if (stainScreenY > -50 && stainScreenY < height + 50) {
+            if (!stain.cleaned) {
+              ctx.fillStyle = stain.type === 'طين' ? '#451a03' : '#1e1b4b';
+              ctx.beginPath();
+              ctx.arc(stainScreenX, stainScreenY, 26, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.font = '12px Segoe UI';
+              ctx.fillStyle = '#fff';
+              ctx.textAlign = 'center';
+              ctx.fillText('اضغط هنا!', stainScreenX, stainScreenY + 4);
+            } else {
+              ctx.fillStyle = '#00e676';
+              ctx.font = '22px sans-serif';
+              ctx.textAlign = 'center';
+              ctx.fillText('✨', stainScreenX, stainScreenY + 6);
+            }
+          }
+        });
+
+        // رأس الماكينة الذكية العلوية
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+        ctx.fillRect(0, height - 70, width, 70);
         ctx.fillStyle = '#38bdf8';
-        ctx.font = 'bold 16px Segoe UI';
-        ctx.fillText(`الصابون: ${runnerPlayer.score} / 5`, width / 2, 80);
+        ctx.font = 'bold 14px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.fillText('المس البقع الداكنة بسرعة لتشغيل رؤوس التنظيف الأوتوماتيكية!', width / 2, height - 30);
       }
 
       requestAnimationFrame(loop);
     }
     loop();
 
-    // إرسال الطلب لـ Google Sheets وفتح الواتساب
+    // إرسال البيانات للـ Google Sheets وفتح الواتساب بالخصم المحدد
     orderForm.onsubmit = (e) => {
       e.preventDefault();
       const submitBtn = orderForm.querySelector('.submit-btn');
-      submitBtn.innerText = "جاري الحجز والتحويل لواتساب...";
+      submitBtn.innerText = "جاري الحجز وتطبيق الخصم...";
       submitBtn.disabled = true;
 
       const custName = document.getElementById('custName').value.trim();
@@ -1071,7 +959,7 @@
         phone: custPhone,
         address: custAddress,
         service: serviceType,
-        code: uniqueDiscountCode,
+        code: currentDiscountCode,
         timestamp: new Date().toLocaleString('ar-EG')
       };
 
@@ -1083,8 +971,8 @@
       }).catch(() => {});
 
       const msg = `مرحباً مغسلة IN AND OUT ✨\n` +
-        `لقد لعبت في مركز الألعاب وفزت بكود خصم 20% 🎉\n\n` +
-        `🏷️ *كود الخصم:* ${uniqueDiscountCode}\n` +
+        `لقد شاركت في تحديات النظافة وفزت بعرض: *${currentDiscountOffer}* 🎉\n\n` +
+        `🏷️ *كود الخصم:* ${currentDiscountCode}\n` +
         `👤 *الاسم:* ${custName}\n` +
         `📞 *الموبايل:* ${custPhone}\n` +
         `📍 *العنوان:* ${custAddress}\n` +
