@@ -3,49 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>تحدي غسيل السجاد - مغسلة النظافة الذهبية</title>
+  <title>IN AND OUT - Car & Carpet Wash</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       overflow: hidden;
-      background: #0f172a;
+      background: #0b1320;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       user-select: none;
       touch-action: none;
       color: #fff;
     }
 
-    /* الشريط العلوي */
+    /* شريط الحالة والنسبة */
     .top-bar {
       position: fixed;
       top: 15px;
       left: 50%;
       transform: translateX(-50%);
-      background: rgba(30, 41, 59, 0.95);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 8px 20px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 8px 18px;
       border-radius: 30px;
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 12px;
       z-index: 10;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
       white-space: nowrap;
+    }
+    .hud-brand {
+      font-weight: 900;
+      font-size: 14px;
+      letter-spacing: 0.5px;
+      color: #38bdf8;
+      border-left: 1px solid rgba(255, 255, 255, 0.2);
+      padding-left: 10px;
     }
     .progress-box {
       display: flex;
       align-items: center;
       gap: 8px;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: bold;
-      color: #38bdf8;
+      color: #f1f5f9;
     }
     .progress-bar-bg {
-      width: 100px;
+      width: 90px;
       height: 10px;
-      background: #334155;
+      background: #1e293b;
       border-radius: 5px;
       overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
     }
     .progress-fill {
       width: 0%;
@@ -61,84 +70,89 @@
       cursor: crosshair;
     }
 
-    /* فوهة مسدس الضغط التفاعلية */
     #nozzleCursor {
       position: fixed;
-      width: 40px;
-      height: 40px;
-      border: 2px dashed rgba(255, 255, 255, 0.8);
+      width: 44px;
+      height: 44px;
+      border: 2px dashed rgba(56, 189, 248, 0.9);
       border-radius: 50%;
       pointer-events: none;
       transform: translate(-50%, -50%);
       display: none;
       z-index: 5;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
     }
 
-    /* نافذة الفوز وطلب المندوب */
+    /* نافذة الفوز والحجز */
     .win-modal {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(11, 19, 32, 0.88);
       backdrop-filter: blur(8px);
       z-index: 50;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 16px;
     }
     .win-modal.active { display: flex; }
     
     .modal-card {
-      background: #1e293b;
-      border: 2px solid #00e676;
-      border-radius: 20px;
-      padding: 24px;
+      background: #111c30;
+      border: 2px solid #38bdf8;
+      border-radius: 24px;
+      padding: 22px 20px;
       width: 100%;
       max-width: 360px;
       text-align: center;
-      box-shadow: 0 10px 30px rgba(0, 230, 118, 0.25);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
       animation: popIn 0.3s ease-out;
     }
     @keyframes popIn {
       from { transform: scale(0.85); opacity: 0; }
       to { transform: scale(1); opacity: 1; }
     }
-    .modal-card h2 { color: #00e676; font-size: 20px; margin-bottom: 6px; }
-    .modal-card p { font-size: 13px; color: #94a3b8; margin-bottom: 14px; }
+    .modal-logo {
+      width: 140px;
+      margin: 0 auto 10px;
+      display: block;
+    }
+    .modal-card h2 { color: #38bdf8; font-size: 19px; margin-bottom: 4px; }
+    .modal-card p { font-size: 12px; color: #94a3b8; margin-bottom: 12px; }
     
     .discount-badge {
-      background: rgba(0, 230, 118, 0.15);
-      border: 1px dashed #00e676;
-      color: #00e676;
-      font-size: 16px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px dashed #38bdf8;
+      color: #38bdf8;
+      font-size: 15px;
       font-weight: bold;
-      padding: 8px 16px;
+      padding: 6px 14px;
       border-radius: 10px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       display: inline-block;
     }
 
     .order-form {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 9px;
       text-align: right;
     }
     .order-form input, .order-form select {
       width: 100%;
-      padding: 10px 14px;
+      padding: 10px 12px;
       border-radius: 10px;
-      background: #0f172a;
-      border: 1px solid #334155;
+      background: #0b1320;
+      border: 1px solid #1e293b;
       color: #fff;
       font-size: 13px;
       outline: none;
     }
-    .order-form input:focus { border-color: #00e676; }
+    .order-form input:focus, .order-form select:focus { border-color: #38bdf8; }
     
     .submit-btn {
-      background: linear-gradient(135deg, #00e676, #00b0ff);
-      color: #0f172a;
+      background: linear-gradient(135deg, #38bdf8, #0284c7);
+      color: #04101e;
       font-size: 15px;
       font-weight: bold;
       border: none;
@@ -146,15 +160,16 @@
       border-radius: 10px;
       cursor: pointer;
       margin-top: 4px;
-      box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
+      box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
     }
   </style>
 </head>
 <body>
 
   <div class="top-bar">
+    <div class="hud-brand">IN & OUT</div>
     <div class="progress-box">
-      <span>نسبة النظافة:</span>
+      <span>النظافة:</span>
       <div class="progress-bar-bg">
         <div class="progress-fill" id="progressFill"></div>
       </div>
@@ -165,32 +180,51 @@
   <div id="nozzleCursor"></div>
   <canvas id="gameCanvas"></canvas>
 
-  <!-- نافذة الفوز وطلب الخدمة -->
+  <!-- نافذة الخصم وحجز المندوب -->
   <div class="win-modal" id="winModal">
     <div class="modal-card">
-      <div style="font-size: 40px; margin-bottom: 6px;">✨🎉</div>
-      <h2>سجادتك هترجع جديدة بالظبط كده!</h2>
-      <p>مبروك! تم تنظيف السجادة بالكامل وحصلت على خصم فوري.</p>
+      <svg class="modal-logo" viewBox="0 0 400 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M200 10 L370 50 V150 C370 200 200 235 200 235 C200 235 30 200 30 150 V50 L200 10 Z" fill="#0f1c30" stroke="#94a3b8" stroke-width="8"/>
+        <!-- شريط IN AND OUT -->
+        <rect x="20" y="100" width="360" height="65" rx="10" fill="#0b1320" stroke="#cbd5e1" stroke-width="5"/>
+        <text x="200" y="146" font-family="'Impact', 'Segoe UI Black', sans-serif" font-weight="bold" font-style="italic" font-size="44" fill="#ffffff" text-anchor="middle" letter-spacing="3">IN AND OUT</text>
+        <text x="200" y="185" font-family="'Segoe UI', sans-serif" font-weight="900" font-size="16" fill="#38bdf8" text-anchor="middle" letter-spacing="4">CAR & CARPET WASH</text>
+      </svg>
+
+      <h2>نظافة تليق ببيتك وسيارتك! ✨</h2>
+      <p>مبروك! تم تنظيف السجادة بنسبة 100% وحصلت على خصم فوري.</p>
       
-      <div class="discount-badge">كود الخصم: CARPET15 (خصم 15%)</div>
+      <div class="discount-badge">كود الخصم: INOUT20 (خصم 20%)</div>
 
       <form class="order-form" id="orderForm">
         <input type="text" id="custName" placeholder="الاسم الكريم" required>
         <input type="tel" id="custPhone" placeholder="رقم الموبايل / واتساب" required>
         <input type="text" id="custAddress" placeholder="العنوان بالتفصيل" required>
-        <select id="carpetCount">
-          <option value="1 إلى 2 سجادات">عدد السجاد: 1 إلى 2</option>
-          <option value="3 إلى 5 سجادات">عدد السجاد: 3 إلى 5 (عرض خاص)</option>
-          <option value="أكثر من 5 سجادات">أكثر من 5 سجادات</option>
+        <select id="serviceType">
+          <option value="غسيل سجاد - استلام وتوصيل">غسيل سجاد (استلام وتوصيل منزلي)</option>
+          <option value="غسيل وتلميع سيارة">غسيل وتلميع سيارات (Car Wash)</option>
+          <option value="سجاد + سيارة (عرض خاص)">باقة كاملة: سجاد + غسيل سيارة</option>
         </select>
-        <button type="submit" class="submit-btn">احجز مندوب الاستلام الآن 🚚</button>
+        <button type="submit" class="submit-btn">احجز الآن واستفد بالخصم 🚚🚗</button>
       </form>
     </div>
   </div>
 
   <script>
-    // استبدل برابط Formspree الخاص بك
-    const FORMSPREE_ENDPOINT = "https://formspree.io/f/YOUR_FORM_ID";
+    const FORMSPREE_ENDPOINT = "https://formspree.io/f/mnpalrno";
+
+    // تتبع فتح العميل للرابط لأول مرة
+    window.addEventListener('load', () => {
+      fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          الحدث: "🚀 فتح رابط لعبة مغسلة IN AND OUT",
+          الوقت: new Date().toLocaleString('ar-EG'),
+          الشاشة: `${window.innerWidth}x${window.innerHeight}`
+        })
+      }).catch(() => {});
+    });
 
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -203,7 +237,6 @@
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = window.innerHeight;
 
-    // كانفاس مخفي للرسم النظيف وكانفاس للأوساخ
     const cleanCanvas = document.createElement('canvas');
     const cleanCtx = cleanCanvas.getContext('2d');
     const dirtyCanvas = document.createElement('canvas');
@@ -213,12 +246,11 @@
     cleanCanvas.height = dirtyCanvas.height = height;
 
     let isWashing = false;
-    let washPos = { x: 0, y: 0 };
     let waterParticles = [];
     let isGameWon = false;
-    const WASH_RADIUS = 35;
+    const WASH_RADIUS = 36;
 
-    /* محرك صوت ضغط الماء والرغوة ASMR */
+    /* محرك صوت ضغط الماء عالي الكفاءة ASMR */
     let audioCtx = null, noiseNode = null, noiseFilter = null, noiseGain = null;
 
     function initAudio() {
@@ -237,8 +269,8 @@
 
       noiseFilter = audioCtx.createBiquadFilter();
       noiseFilter.type = 'bandpass';
-      noiseFilter.frequency.setValueAtTime(1200, audioCtx.currentTime);
-      noiseFilter.Q.setValueAtTime(2, audioCtx.currentTime);
+      noiseFilter.frequency.setValueAtTime(1300, audioCtx.currentTime);
+      noiseFilter.Q.setValueAtTime(1.8, audioCtx.currentTime);
 
       noiseGain = audioCtx.createGain();
       noiseGain.gain.setValueAtTime(0, audioCtx.currentTime);
@@ -252,55 +284,62 @@
     function setWashingSound(active) {
       if (!audioCtx) initAudio();
       if (noiseGain) {
-        noiseGain.gain.setTargetAtTime(active ? 0.18 : 0, audioCtx.currentTime, 0.05);
+        noiseGain.gain.setTargetAtTime(active ? 0.22 : 0, audioCtx.currentTime, 0.05);
       }
       if (active && navigator.vibrate) {
-        navigator.vibrate(40);
+        navigator.vibrate(35);
       }
     }
 
-    // 1. رسم السجادة النظيفة الملونة (الطبقة السفلية)
+    // 1. رسم السجادة الفاخرة النظيفة
     function generateCleanCarpet() {
-      // نقشات وزخارف إسلامية ومودرن للسجادة
-      cleanCtx.fillStyle = '#b91c1c'; // أحمر ملكي
+      // خلفية السجادة الفاخرة الكحلية والذهبية
+      cleanCtx.fillStyle = '#0f172a';
       cleanCtx.fillRect(0, 0, width, height);
 
-      // إطار ذهبي
-      cleanCtx.strokeStyle = '#f59e0b';
-      cleanCtx.lineWidth = 14;
-      cleanCtx.strokeRect(30, 30, width - 60, height - 60);
+      // نقوش الإطار الملكي
+      cleanCtx.strokeStyle = '#38bdf8';
+      cleanCtx.lineWidth = 12;
+      cleanCtx.strokeRect(25, 25, width - 50, height - 50);
 
-      // نقوشات هندسية ملونة في المنتصف
-      cleanCtx.fillStyle = '#0284c7';
+      cleanCtx.strokeStyle = '#f59e0b';
+      cleanCtx.lineWidth = 4;
+      cleanCtx.strokeRect(40, 40, width - 80, height - 80);
+
+      // ميدالية السجادة الشرقية في المنتصف
+      cleanCtx.fillStyle = '#1e3a8a';
       cleanCtx.beginPath();
       cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.28, 0, Math.PI * 2);
       cleanCtx.fill();
 
-      cleanCtx.fillStyle = '#fbbf24';
+      cleanCtx.fillStyle = '#0284c7';
       cleanCtx.beginPath();
-      cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.16, 0, Math.PI * 2);
+      cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.18, 0, Math.PI * 2);
       cleanCtx.fill();
 
-      // تفاصيل خطوط ناعمة
-      cleanCtx.strokeStyle = '#ffffff';
-      cleanCtx.lineWidth = 4;
-      for (let i = 0; i < width; i += 60) {
-        cleanCtx.strokeRect(i, 50, 40, height - 100);
-      }
+      cleanCtx.fillStyle = '#f59e0b';
+      cleanCtx.beginPath();
+      cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.09, 0, Math.PI * 2);
+      cleanCtx.fill();
+
+      // شعار IN AND OUT ناصع النظافة في أرضية السجادة
+      cleanCtx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+      cleanCtx.font = 'bold 26px sans-serif';
+      cleanCtx.textAlign = 'center';
+      cleanCtx.fillText('IN AND OUT CLEAN', width / 2, height / 2 + Math.min(width, height) * 0.36);
     }
 
-    // 2. رسم طبقة الأوساخ والبقع (الطبقة العلوية)
+    // 2. رسم طبقة البقع والأتربة
     function generateDirtyLayer() {
-      dirtyCtx.fillStyle = '#451a03'; // طبقة طين وأتربة
+      dirtyCtx.fillStyle = '#38220f';
       dirtyCtx.fillRect(0, 0, width, height);
 
-      // بقع قهوة وشوكولاتة عشوائية
-      for (let i = 0; i < 35; i++) {
-        dirtyCtx.fillStyle = i % 2 === 0 ? '#1f0d04' : '#2e1065';
+      for (let i = 0; i < 40; i++) {
+        dirtyCtx.fillStyle = i % 2 === 0 ? '#1c0f05' : '#261408';
         dirtyCtx.beginPath();
         const rx = Math.random() * width;
         const ry = Math.random() * height;
-        dirtyCtx.arc(rx, ry, Math.random() * 50 + 20, 0, Math.PI * 2);
+        dirtyCtx.arc(rx, ry, Math.random() * 55 + 25, 0, Math.PI * 2);
         dirtyCtx.fill();
       }
     }
@@ -308,7 +347,6 @@
     generateCleanCarpet();
     generateDirtyLayer();
 
-    // إزالة الأوساخ عند الضغط والمسح
     function washAt(x, y) {
       dirtyCtx.globalCompositeOperation = 'destination-out';
       dirtyCtx.beginPath();
@@ -316,7 +354,6 @@
       dirtyCtx.fill();
       dirtyCtx.globalCompositeOperation = 'source-over';
 
-      // توليد رذاذ ورغوة ماء متحركة
       for (let i = 0; i < 6; i++) {
         waterParticles.push({
           x: x + (Math.random() - 0.5) * 25,
@@ -331,7 +368,6 @@
       checkCleanliness();
     }
 
-    // حساب نسبة المساحة المنظفة
     let checkThrottle = 0;
     function checkCleanliness() {
       checkThrottle++;
@@ -341,7 +377,6 @@
       let totalPixels = 0;
       let cleanPixels = 0;
 
-      // فحص عينة سريعة من البكسلات
       for (let i = 3; i < imgData.length; i += 64) {
         totalPixels++;
         if (imgData[i] === 0) cleanPixels++;
@@ -356,14 +391,12 @@
         setWashingSound(false);
         setTimeout(() => {
           winModal.classList.add('active');
-        }, 400);
+        }, 350);
       }
     }
 
-    // التعامل مع أحداث اللمس والماوس
     const startWash = (e) => {
       isWashing = true;
-      washPos = { x: e.clientX, y: e.clientY };
       nozzleCursor.style.display = 'block';
       nozzleCursor.style.left = `${e.clientX}px`;
       nozzleCursor.style.top = `${e.clientY}px`;
@@ -373,7 +406,6 @@
 
     const moveWash = (e) => {
       if (!isWashing) return;
-      washPos = { x: e.clientX, y: e.clientY };
       nozzleCursor.style.left = `${e.clientX}px`;
       nozzleCursor.style.top = `${e.clientY}px`;
       washAt(e.clientX, e.clientY);
@@ -390,24 +422,18 @@
     window.addEventListener('pointerup', endWash);
     window.addEventListener('pointercancel', endWash);
 
-    // حلقة الرسم والتحديث المستمر
     function render() {
       ctx.clearRect(0, 0, width, height);
-
-      // 1. رسم السجادة النظيفة
       ctx.drawImage(cleanCanvas, 0, 0);
-
-      // 2. رسم طبقة الأوساخ المتبقية فوقها
       ctx.drawImage(dirtyCanvas, 0, 0);
 
-      // 3. رسم رذاذ الماء وفقاعات الرغوة
       for (let i = 0; i < waterParticles.length; i++) {
         const p = waterParticles[i];
         p.x += p.vx;
         p.y += p.vy;
         p.alpha -= 0.03;
         if (p.alpha > 0) {
-          ctx.fillStyle = `rgba(224, 242, 254, ${p.alpha})`;
+          ctx.fillStyle = `rgba(56, 189, 248, ${p.alpha})`;
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
           ctx.fill();
@@ -419,7 +445,7 @@
     }
     render();
 
-    // إرسال طلب حجز المندوب عبر Formspree
+    // إرسال طلب الحجز إلى بريدك
     orderForm.onsubmit = (e) => {
       e.preventDefault();
       const submitBtn = orderForm.querySelector('.submit-btn');
@@ -430,19 +456,19 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          الخدمة: "طلب غسيل سجاد (لعبة مسدس الضغط)",
+          الخدمة: "حجز مغسلة IN AND OUT (مسدس الضغط)",
+          نوع_الطلب: document.getElementById('serviceType').value,
           الاسم: document.getElementById('custName').value,
           الموبايل: document.getElementById('custPhone').value,
           العنوان: document.getElementById('custAddress').value,
-          الكمية: document.getElementById('carpetCount').value,
-          كود_الخصم: "CARPET15",
+          كود_الخصم: "INOUT20",
           التاريخ: new Date().toLocaleString('ar-EG')
         })
       }).then(() => {
-        alert("تم استلام طلبك بنجاح! سيتم التواصل معك هاتفياً لتحديد موعد استلام السجاد 🚚✨");
+        alert("تم استلام طلبك بنجاح لدى مغسلة IN AND OUT! سنتواصل معك هاتفياً فوراً 🚚✨");
         location.reload();
       }).catch(() => {
-        alert("تم تسجيل طلبك، سنتواصل معك حالاً!");
+        alert("تم تسجيل طلبك بنجاح!");
         location.reload();
       });
     };
