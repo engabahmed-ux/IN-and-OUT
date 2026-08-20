@@ -15,146 +15,219 @@
       color: #fff;
     }
 
-    .top-bar {
+    /* الشاشة الرئيسية لاختيار الألعاب */
+    #hubScreen {
       position: fixed;
-      top: 15px;
+      inset: 0;
+      background: radial-gradient(circle at center, #111c30 0%, #060b13 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 16px;
+    }
+    .brand-header {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+    .brand-header svg {
+      width: 140px;
+      height: auto;
+      margin-bottom: 6px;
+    }
+    .brand-header h1 {
+      font-size: 20px;
+      color: #38bdf8;
+      font-weight: 900;
+    }
+    .brand-header p {
+      font-size: 13px;
+      color: #94a3b8;
+    }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      width: 100%;
+      max-width: 350px;
+    }
+    .game-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 16px;
+      padding: 16px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .game-card:active {
+      transform: scale(0.96);
+      background: rgba(56, 189, 248, 0.15);
+      border-color: #38bdf8;
+    }
+    .game-card .icon { font-size: 32px; margin-bottom: 6px; }
+    .game-card .title { font-size: 14px; font-weight: bold; color: #f8fafc; }
+    .game-card .desc { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+
+    /* عناصر شاشة اللعب العامة */
+    .top-bar {
+      display: none;
+      position: fixed;
+      top: 12px;
       left: 50%;
       transform: translateX(-50%);
       background: rgba(15, 23, 42, 0.95);
       border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 8px 18px;
+      padding: 6px 16px;
       border-radius: 30px;
-      display: flex;
       align-items: center;
       gap: 12px;
-      z-index: 10;
+      z-index: 20;
       box-shadow: 0 6px 20px rgba(0,0,0,0.5);
       white-space: nowrap;
     }
-    .hud-brand {
-      font-weight: 900;
-      font-size: 14px;
-      color: #38bdf8;
-      border-left: 1px solid rgba(255, 255, 255, 0.2);
-      padding-left: 10px;
+    .btn-back-hub {
+      background: #334155;
+      color: #fff;
+      border: none;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      cursor: pointer;
     }
-    .progress-box {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      font-weight: bold;
-      color: #f1f5f9;
-    }
-    .progress-bar-bg {
-      width: 90px;
-      height: 10px;
-      background: #1e293b;
-      border-radius: 5px;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    .progress-fill {
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(90deg, #38bdf8, #00e676);
-      transition: width 0.15s ease-out;
-    }
+    .hud-title { font-weight: bold; font-size: 13px; color: #38bdf8; }
 
     #gameCanvas {
-      display: block;
+      display: none;
       width: 100vw;
       height: 100vh;
-      cursor: crosshair;
     }
 
+    /* شريط الأسلحة للعبة 1 */
     .weapons-bar {
+      display: none;
       position: fixed;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
       background: rgba(15, 23, 42, 0.92);
-      backdrop-filter: blur(8px);
       border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 35px;
       padding: 6px 12px;
-      display: flex;
-      gap: 10px;
+      gap: 8px;
       z-index: 15;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
     }
     .weapon-btn {
       background: rgba(255, 255, 255, 0.08);
       border: 2px solid transparent;
       border-radius: 25px;
-      padding: 8px 14px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      padding: 6px 12px;
       color: #cbd5e1;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: bold;
       cursor: pointer;
-      transition: all 0.2s;
     }
     .weapon-btn.active {
       background: rgba(56, 189, 248, 0.25);
       border-color: #38bdf8;
       color: #38bdf8;
-      transform: scale(1.05);
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
     }
-    .weapon-btn span.icon { font-size: 20px; }
 
-    #nozzleCursor {
-      position: fixed;
-      width: 44px;
-      height: 44px;
-      border: 2px dashed rgba(56, 189, 248, 0.9);
-      border-radius: 50%;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
+    /* واجهة لعبة خط الإنتاج (Game 3) */
+    #factoryUI {
       display: none;
-      z-index: 5;
-      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+      position: fixed;
+      inset: 0;
+      background: #0f172a;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      padding: 20px;
+    }
+    .stage-card {
+      background: #1e293b;
+      border: 2px solid #38bdf8;
+      border-radius: 20px;
+      padding: 24px;
+      text-align: center;
+      width: 100%;
+      max-width: 320px;
+    }
+    .stage-card h3 { font-size: 18px; margin-bottom: 8px; color: #38bdf8; }
+    .stage-card p { font-size: 13px; color: #94a3b8; margin-bottom: 20px; }
+    .stage-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #38bdf8, #0284c7);
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #04101e;
+      cursor: pointer;
     }
 
+    /* واجهة لعبة عجلة الحظ (Game 4) */
+    #wheelUI {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #0f172a;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      padding: 20px;
+    }
+    .wheel-container {
+      position: relative;
+      width: 260px;
+      height: 260px;
+      margin-bottom: 25px;
+    }
+    #wheelCanvas {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 4px solid #38bdf8;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+      transition: transform 3.5s cubic-bezier(0.15, 0.9, 0.2, 1);
+    }
+    .wheel-pointer {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 26px;
+      z-index: 2;
+    }
+
+    /* نافذة الفوز والحجز المشتركة */
     .win-modal {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(11, 19, 32, 0.88);
+      background: rgba(11, 19, 32, 0.9);
       backdrop-filter: blur(8px);
-      z-index: 50;
+      z-index: 150;
       align-items: center;
       justify-content: center;
       padding: 16px;
     }
     .win-modal.active { display: flex; }
-    
     .modal-card {
       background: #111c30;
       border: 2px solid #38bdf8;
       border-radius: 24px;
       padding: 22px 20px;
       width: 100%;
-      max-width: 360px;
+      max-width: 350px;
       text-align: center;
       box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
-      animation: popIn 0.3s ease-out;
     }
-    @keyframes popIn {
-      from { transform: scale(0.85); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-    .modal-logo {
-      width: 140px;
-      margin: 0 auto 10px;
-      display: block;
-    }
-    .modal-card h2 { color: #38bdf8; font-size: 19px; margin-bottom: 4px; }
-    .modal-card p { font-size: 12px; color: #94a3b8; margin-bottom: 12px; }
-    
     .discount-badge {
       background: rgba(56, 189, 248, 0.12);
       border: 1px dashed #38bdf8;
@@ -163,15 +236,13 @@
       font-weight: bold;
       padding: 6px 14px;
       border-radius: 10px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       display: inline-block;
-      letter-spacing: 1px;
     }
-
     .order-form {
       display: flex;
       flex-direction: column;
-      gap: 9px;
+      gap: 8px;
       text-align: right;
     }
     .order-form input, .order-form select {
@@ -184,8 +255,6 @@
       font-size: 13px;
       outline: none;
     }
-    .order-form input:focus, .order-form select:focus { border-color: #38bdf8; }
-    
     .submit-btn {
       background: linear-gradient(135deg, #25D366, #128C7E);
       color: #ffffff;
@@ -196,56 +265,89 @@
       border-radius: 10px;
       cursor: pointer;
       margin-top: 4px;
-      box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
     }
   </style>
 </head>
 <body>
 
-  <div class="top-bar">
-    <div class="hud-brand">IN & OUT</div>
-    <div class="progress-box">
-      <span>النظافة:</span>
-      <div class="progress-bar-bg">
-        <div class="progress-fill" id="progressFill"></div>
+  <!-- الشاشة الرئيسية لاختيار الألعاب -->
+  <div id="hubScreen">
+    <div class="brand-header">
+      <svg viewBox="0 0 400 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M200 10 L370 50 V150 C370 200 200 235 200 235 C200 235 30 200 30 150 V50 L200 10 Z" fill="#0f1c30" stroke="#94a3b8" stroke-width="8"/>
+        <rect x="20" y="100" width="360" height="65" rx="10" fill="#0b1320" stroke="#cbd5e1" stroke-width="5"/>
+        <text x="200" y="146" font-family="'Impact', sans-serif" font-weight="bold" font-style="italic" font-size="44" fill="#ffffff" text-anchor="middle" letter-spacing="3">IN AND OUT</text>
+        <text x="200" y="185" font-family="'Segoe UI', sans-serif" font-weight="900" font-size="16" fill="#38bdf8" text-anchor="middle" letter-spacing="4">CAR & CARPET WASH</text>
+      </svg>
+      <h1>ألعاب وتحديات النظافة ✨</h1>
+      <p>العب، نظف، واكسب كود خصم فوري لخدماتنا!</p>
+    </div>
+
+    <div class="games-grid">
+      <div class="game-card" onclick="launchGame('WASHER')">
+        <div class="icon">🔫</div>
+        <div class="title">مسدس الضغط</div>
+        <div class="desc">نظف السجادة بالماء والقنابل</div>
       </div>
-      <span id="progressText">0%</span>
+      <div class="game-card" onclick="launchGame('RUNNER')">
+        <div class="icon">🏃‍♂️</div>
+        <div class="title">رول السجاد</div>
+        <div class="desc">اجمع الصابون وتفادى البقع</div>
+      </div>
+      <div class="game-card" onclick="launchGame('FACTORY')">
+        <div class="icon">⚙️</div>
+        <div class="title">المغسلة الذكية</div>
+        <div class="desc">عش تجربة خط الإنتاج خطوة بخطوة</div>
+      </div>
+      <div class="game-card" onclick="launchGame('WHEEL')">
+        <div class="icon">🎡</div>
+        <div class="title">عجلة الحظ</div>
+        <div class="desc">لف العجلة واربح جائزتك فوراً</div>
+      </div>
     </div>
   </div>
 
-  <div class="weapons-bar">
-    <button class="weapon-btn active" id="btnHose">
-      <span class="icon">🔫</span>
-      <span>مسدس ضغط</span>
-    </button>
-    <button class="weapon-btn" id="btnBucket">
-      <span class="icon">🪣</span>
-      <span>جردل ماء</span>
-    </button>
-    <button class="weapon-btn" id="btnBomb">
-      <span class="icon">💣</span>
-      <span>قنبلة رغوة</span>
-    </button>
+  <!-- الشريط العلوي أثناء اللعب -->
+  <div class="top-bar" id="gameTopBar">
+    <button class="btn-back-hub" onclick="backToHub()">🏠 القائمة</button>
+    <div class="hud-title" id="hudTitle">تحدي النظافة</div>
   </div>
 
-  <div id="nozzleCursor"></div>
+  <!-- كانفاس الألعاب الرسومية (1 و 2) -->
   <canvas id="gameCanvas"></canvas>
 
+  <!-- أسلحة مسدس الضغط -->
+  <div class="weapons-bar" id="washerWeapons">
+    <button class="weapon-btn active" id="btnHose">🔫 مسدس</button>
+    <button class="weapon-btn" id="btnBucket">🪣 جردل</button>
+    <button class="weapon-btn" id="btnBomb">💣 قنبلة</button>
+  </div>
+
+  <!-- واجهة لعبة خط الإنتاج (Game 3) -->
+  <div id="factoryUI">
+    <div class="stage-card">
+      <div id="factoryIcon" style="font-size: 44px; margin-bottom: 10px;">💨</div>
+      <h3 id="factoryStageTitle">المرحلة 1: نفض الأتربة</h3>
+      <p id="factoryStageDesc">اضغط باستمرار لتشغيل شفاط وضخ الهواء لإزالة الغبار العميق.</p>
+      <button class="stage-btn" id="factoryActionBtn">ابدأ التنفيض 💨</button>
+    </div>
+  </div>
+
+  <!-- واجهة لعبة عجلة الحظ (Game 4) -->
+  <div id="wheelUI">
+    <div class="wheel-container">
+      <div class="wheel-pointer">🔻</div>
+      <canvas id="wheelCanvas" width="300" height="300"></canvas>
+    </div>
+    <button class="stage-btn" id="spinWheelBtn" style="max-width: 250px;">لف العجلة الآن 🎯</button>
+  </div>
+
+  <!-- نافذة الفوز والحجز المشتركة -->
   <div class="win-modal" id="winModal">
     <div class="modal-card">
-      <svg class="modal-logo" viewBox="0 0 400 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M200 10 L370 50 V150 C370 200 200 235 200 235 C200 235 30 200 30 150 V50 L200 10 Z" fill="#0f1c30" stroke="#94a3b8" stroke-width="8"/>
-        <rect x="20" y="100" width="360" height="65" rx="10" fill="#0b1320" stroke="#cbd5e1" stroke-width="5"/>
-        <text x="200" y="146" font-family="'Impact', 'Segoe UI Black', sans-serif" font-weight="bold" font-style="italic" font-size="44" fill="#ffffff" text-anchor="middle" letter-spacing="3">IN AND OUT</text>
-        <text x="200" y="185" font-family="'Segoe UI', sans-serif" font-weight="900" font-size="16" fill="#38bdf8" text-anchor="middle" letter-spacing="4">CAR & CARPET WASH</text>
-      </svg>
-
-      <h2>نظافة تليق ببيتك وسيارتك! ✨</h2>
-      <p>مبروك! تم تنظيف السجادة بنسبة 100% وحصلت على خصم فوري.</p>
+      <div style="font-size: 40px; margin-bottom: 6px;">🎉✨</div>
+      <h2>ألف مبروك! فزت بالخصم</h2>
+      <p id="winSubText">تم إتمام التحدي بنجاح، احجز الآن واستفد بالعرض!</p>
       
       <div class="discount-badge" id="discountBadge">كود الخصم: ...</div>
 
@@ -258,9 +360,7 @@
           <option value="غسيل وتلميع سيارة">غسيل وتلميع سيارات (Car Wash)</option>
           <option value="سجاد + سيارة (عرض خاص)">باقة كاملة: سجاد + غسيل سيارة</option>
         </select>
-        <button type="submit" class="submit-btn">
-          <span>تأكيد الحجز واستلام الكود عبر واتساب 💬</span>
-        </button>
+        <button type="submit" class="submit-btn">تأكيد الحجز واستلام الكود عبر واتساب 💬</button>
       </form>
     </div>
   </div>
@@ -269,398 +369,336 @@
     const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbweP5a-8B1xKKJi-7U1N3Yh9od5LulIPjNXNSOK0gRWsn2P5TUoTYMrBin6b2736e4p/exec";
     const BUSINESS_WHATSAPP_PHONE = "201009204577";
 
-    const uniqueDiscountCode = "INOUT-" + Math.floor(1000 + Math.random() * 9000);
+    let currentGame = null;
+    let uniqueDiscountCode = "INOUT-" + Math.floor(1000 + Math.random() * 9000);
 
+    const hubScreen = document.getElementById('hubScreen');
+    const topBar = document.getElementById('gameTopBar');
+    const hudTitle = document.getElementById('hudTitle');
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
-    const progressFill = document.getElementById('progressFill');
-    const progressText = document.getElementById('progressText');
-    const nozzleCursor = document.getElementById('nozzleCursor');
+    const washerWeapons = document.getElementById('washerWeapons');
+    const factoryUI = document.getElementById('factoryUI');
+    const wheelUI = document.getElementById('wheelUI');
     const winModal = document.getElementById('winModal');
-    const orderForm = document.getElementById('orderForm');
     const discountBadge = document.getElementById('discountBadge');
-
-    const btnHose = document.getElementById('btnHose');
-    const btnBucket = document.getElementById('btnBucket');
-    const btnBomb = document.getElementById('btnBomb');
+    const orderForm = document.getElementById('orderForm');
 
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = window.innerHeight;
 
-    const cleanCanvas = document.createElement('canvas');
-    const cleanCtx = cleanCanvas.getContext('2d');
-    const dirtyCanvas = document.createElement('canvas');
-    const dirtyCtx = dirtyCanvas.getContext('2d');
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
 
-    cleanCanvas.width = dirtyCanvas.width = width;
-    cleanCanvas.height = dirtyCanvas.height = height;
-
-    let isWashing = false;
-    let waterParticles = [];
-    let activeBombs = [];
-    let shockwaves = [];
-    let isGameWon = false;
-    let selectedWeapon = "HOSE";
-
-    function setWeapon(weapon, btn) {
-      selectedWeapon = weapon;
-      document.querySelectorAll('.weapon-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    }
-    btnHose.onclick = (e) => { e.stopPropagation(); setWeapon("HOSE", btnHose); };
-    btnBucket.onclick = (e) => { e.stopPropagation(); setWeapon("BUCKET", btnBucket); };
-    btnBomb.onclick = (e) => { e.stopPropagation(); setWeapon("BOMB", btnBomb); };
-
+    /* Audio */
     let audioCtx = null;
-    let noiseGain = null;
-
-    function ensureAudioUnlocked() {
+    function unlockAudio() {
       if (!audioCtx) {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        audioCtx = new AudioContext();
-
-        const bufferSize = audioCtx.sampleRate * 2;
-        const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        const output = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-          output[i] = Math.random() * 2 - 1;
-        }
-
-        const whiteNoise = audioCtx.createBufferSource();
-        whiteNoise.buffer = noiseBuffer;
-        whiteNoise.loop = true;
-
-        const filter = audioCtx.createBiquadFilter();
-        filter.type = 'bandpass';
-        filter.frequency.setValueAtTime(1200, audioCtx.currentTime);
-        filter.Q.setValueAtTime(1.5, audioCtx.currentTime);
-
-        noiseGain = audioCtx.createGain();
-        noiseGain.gain.setValueAtTime(0, audioCtx.currentTime);
-
-        whiteNoise.connect(filter);
-        filter.connect(noiseGain);
-        noiseGain.connect(audioCtx.destination);
-        whiteNoise.start(0);
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
       if (audioCtx.state === 'suspended') audioCtx.resume();
     }
-
-    function setWashingSound(active) {
-      ensureAudioUnlocked();
-      if (noiseGain && audioCtx) {
-        const targetVol = active ? 0.35 : 0.0001;
-        noiseGain.gain.cancelScheduledValues(audioCtx.currentTime);
-        noiseGain.gain.setValueAtTime(noiseGain.gain.value, audioCtx.currentTime);
-        noiseGain.gain.linearRampToValueAtTime(targetVol, audioCtx.currentTime + 0.04);
-      }
-      if (active && navigator.vibrate) navigator.vibrate(25);
-    }
-
-    function playSplashSound(pitch = 200, duration = 0.4) {
-      ensureAudioUnlocked();
+    function playBeep(freq = 400, dur = 0.2) {
+      unlockAudio();
       const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + duration);
-      gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-      gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
+      const g = audioCtx.createGain();
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      g.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      g.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+      osc.connect(g);
+      g.connect(audioCtx.destination);
       osc.start();
-      osc.stop(audioCtx.currentTime + duration);
-      if (navigator.vibrate) navigator.vibrate([40, 20, 60]);
+      osc.stop(audioCtx.currentTime + dur);
     }
 
-    function generateCleanCarpet() {
+    function triggerWin(msg) {
+      document.getElementById('winSubText').innerText = msg;
+      discountBadge.innerText = `كود الخصم: ${uniqueDiscountCode} (خصم 20%)`;
+      winModal.classList.add('active');
+    }
+
+    function backToHub() {
+      currentGame = null;
+      canvas.style.display = 'none';
+      washerWeapons.style.display = 'none';
+      factoryUI.style.display = 'none';
+      wheelUI.style.display = 'none';
+      topBar.style.display = 'none';
+      winModal.classList.remove('active');
+      hubScreen.style.display = 'flex';
+    }
+
+    function launchGame(game) {
+      unlockAudio();
+      currentGame = game;
+      hubScreen.style.display = 'none';
+      topBar.style.display = 'flex';
+
+      if (game === 'WASHER') initWasherGame();
+      else if (game === 'RUNNER') initRunnerGame();
+      else if (game === 'FACTORY') initFactoryGame();
+      else if (game === 'WHEEL') initWheelGame();
+    }
+
+    /* ================= 1. لعبة مسدس الضغط (WASHER) ================= */
+    let cleanCanvas, cleanCtx, dirtyCanvas, dirtyCtx;
+    let selectedWeapon = "HOSE";
+    let isWashing = false, activeBombs = [], waterParticles = [];
+
+    function initWasherGame() {
+      hudTitle.innerText = "مسدس الضغط: نظف السجادة";
+      canvas.style.display = 'block';
+      washerWeapons.style.display = 'flex';
+
+      cleanCanvas = document.createElement('canvas');
+      cleanCtx = cleanCanvas.getContext('2d');
+      dirtyCanvas = document.createElement('canvas');
+      dirtyCtx = dirtyCanvas.getContext('2d');
+      cleanCanvas.width = dirtyCanvas.width = width;
+      cleanCanvas.height = dirtyCanvas.height = height;
+
       cleanCtx.fillStyle = '#0f172a';
       cleanCtx.fillRect(0, 0, width, height);
-
       cleanCtx.strokeStyle = '#38bdf8';
       cleanCtx.lineWidth = 12;
       cleanCtx.strokeRect(25, 25, width - 50, height - 50);
-
-      cleanCtx.strokeStyle = '#f59e0b';
-      cleanCtx.lineWidth = 4;
-      cleanCtx.strokeRect(40, 40, width - 80, height - 80);
-
       cleanCtx.fillStyle = '#1e3a8a';
       cleanCtx.beginPath();
-      cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.28, 0, Math.PI * 2);
+      cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.25, 0, Math.PI * 2);
       cleanCtx.fill();
 
-      cleanCtx.fillStyle = '#0284c7';
-      cleanCtx.beginPath();
-      cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.18, 0, Math.PI * 2);
-      cleanCtx.fill();
-
-      cleanCtx.fillStyle = '#f59e0b';
-      cleanCtx.beginPath();
-      cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.09, 0, Math.PI * 2);
-      cleanCtx.fill();
-
-      cleanCtx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-      cleanCtx.font = 'bold 26px sans-serif';
-      cleanCtx.textAlign = 'center';
-      cleanCtx.fillText('IN AND OUT CLEAN', width / 2, height / 2 + Math.min(width, height) * 0.36);
-    }
-
-    function generateDirtyLayer() {
       dirtyCtx.fillStyle = '#38220f';
       dirtyCtx.fillRect(0, 0, width, height);
-
-      for (let i = 0; i < 40; i++) {
-        dirtyCtx.fillStyle = i % 2 === 0 ? '#1c0f05' : '#261408';
-        dirtyCtx.beginPath();
-        const rx = Math.random() * width;
-        const ry = Math.random() * height;
-        dirtyCtx.arc(rx, ry, Math.random() * 55 + 25, 0, Math.PI * 2);
-        dirtyCtx.fill();
-      }
     }
 
-    generateCleanCarpet();
-    generateDirtyLayer();
+    document.getElementById('btnHose').onclick = () => { selectedWeapon = "HOSE"; updateWeaponBtns(); };
+    document.getElementById('btnBucket').onclick = () => { selectedWeapon = "BUCKET"; updateWeaponBtns(); };
+    document.getElementById('btnBomb').onclick = () => { selectedWeapon = "BOMB"; updateWeaponBtns(); };
 
-    // 1. مسدس ضغط الماء
-    function washHose(x, y) {
-      dirtyCtx.globalCompositeOperation = 'destination-out';
-      dirtyCtx.beginPath();
-      dirtyCtx.arc(x, y, 36, 0, Math.PI * 2);
-      dirtyCtx.fill();
-      dirtyCtx.globalCompositeOperation = 'source-over';
-
-      for (let i = 0; i < 4; i++) {
-        waterParticles.push({
-          x: x + (Math.random() - 0.5) * 20,
-          y: y + (Math.random() - 0.5) * 20,
-          vx: (Math.random() - 0.5) * 6,
-          vy: (Math.random() - 0.5) * 6,
-          size: Math.random() * 4 + 2,
-          alpha: 0.8
-        });
-      }
-      triggerProgressCheck();
+    function updateWeaponBtns() {
+      document.getElementById('btnHose').className = 'weapon-btn ' + (selectedWeapon === 'HOSE' ? 'active' : '');
+      document.getElementById('btnBucket').className = 'weapon-btn ' + (selectedWeapon === 'BUCKET' ? 'active' : '');
+      document.getElementById('btnBomb').className = 'weapon-btn ' + (selectedWeapon === 'BOMB' ? 'active' : '');
     }
 
-    // 2. دلق جردل الماء
-    function washBucket(x, y) {
-      playSplashSound(140, 0.4);
-      dirtyCtx.globalCompositeOperation = 'destination-out';
-      dirtyCtx.beginPath();
-      dirtyCtx.arc(x, y, 95, 0, Math.PI * 2);
-      dirtyCtx.fill();
-      dirtyCtx.globalCompositeOperation = 'source-over';
+    /* ================= 2. لعبة رول السجاد السريع (RUNNER) ================= */
+    let runnerPlayer = { x: 0, targetX: 0, y: 0, score: 0 };
+    let runnerItems = [];
+    let runnerRunning = false;
 
-      shockwaves.push({ x: x, y: y, radius: 10, maxRadius: 100, alpha: 0.9 });
+    function initRunnerGame() {
+      hudTitle.innerText = "رول السجاد: اجمع 5 صابونات";
+      canvas.style.display = 'block';
+      washerWeapons.style.display = 'none';
 
-      for (let i = 0; i < 40; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 8 + 3;
-        waterParticles.push({
-          x: x,
-          y: y,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          size: Math.random() * 8 + 4,
-          alpha: 0.95
-        });
-      }
-      calculateCleanliness(); // تحديث فوري للعداد
+      runnerPlayer.x = width / 2;
+      runnerPlayer.targetX = width / 2;
+      runnerPlayer.y = height - 120;
+      runnerPlayer.score = 0;
+      runnerItems = [];
+      runnerRunning = true;
     }
 
-    // 3. قذف قنبلة الماء والرغوة
-    function throwBomb(targetX, targetY) {
-      playSplashSound(350, 0.2);
-      activeBombs.push({
-        startX: width / 2,
-        startY: height + 30,
-        targetX: targetX,
-        targetY: targetY,
-        currentX: width / 2,
-        currentY: height + 30,
-        timer: 60,       // 60 إطار = ثانية كاملة
-        totalTime: 60,
-        scale: 0.6,
-        rotation: 0
-      });
+    /* ================= 3. لعبة خط إنتاج المغسلة الذكية (FACTORY) ================= */
+    const factoryStages = [
+      { icon: "💨", title: "1. نفض الأتربة", desc: "شفط وإزالة الأتربة العميقة بقوة الهواء", btn: "شغل النفاض 💨" },
+      { icon: "🧼", title: "2. ضخ الرغوة الفعالة", desc: "توزيع رغوة الشامبو الإيطالي المركز", btn: "ضخ الرغوة 🧼" },
+      { icon: "🔄", title: "3. الفرشاة الدوارة", desc: "فرك وتفتيت أصعب البقع بدون إجهاد الأنسجة", btn: "تشغيل الفرشاة 🔄" },
+      { icon: "✨", title: "4. التعطير والتغليف", desc: "تعقيم بالبخار، تعطير فرنسي، وتغليف حراري", btn: "تغليف وتسليم ✨" }
+    ];
+    let currentFactoryStep = 0;
+
+    function initFactoryGame() {
+      factoryUI.style.display = 'flex';
+      currentFactoryStep = 0;
+      updateFactoryUI();
     }
 
-    function explodeBomb(x, y) {
-      playSplashSound(75, 0.7);
-      dirtyCtx.globalCompositeOperation = 'destination-out';
-      dirtyCtx.beginPath();
-      dirtyCtx.arc(x, y, 175, 0, Math.PI * 2);
-      dirtyCtx.fill();
-      dirtyCtx.globalCompositeOperation = 'source-over';
-
-      shockwaves.push({ x: x, y: y, radius: 15, maxRadius: 180, alpha: 1.0 });
-
-      for (let i = 0; i < 80; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 15 + 4;
-        waterParticles.push({
-          x: x,
-          y: y,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          size: Math.random() * 10 + 5,
-          alpha: 1.0
-        });
-      }
-      calculateCleanliness(); // تحديث فوري للعداد
+    function updateFactoryUI() {
+      const stage = factoryStages[currentFactoryStep];
+      hudTitle.innerText = `خط الإنتاج (${currentFactoryStep + 1}/4)`;
+      document.getElementById('factoryIcon').innerText = stage.icon;
+      document.getElementById('factoryStageTitle').innerText = stage.title;
+      document.getElementById('factoryStageDesc').innerText = stage.desc;
+      document.getElementById('factoryActionBtn').innerText = stage.btn;
     }
 
-    // دالة حساب نسبة النظافة الشاملة
-    function calculateCleanliness() {
-      if (isGameWon) return;
-
-      const imgData = dirtyCtx.getImageData(0, 0, width, height).data;
-      let totalPixels = 0;
-      let cleanPixels = 0;
-
-      for (let i = 3; i < imgData.length; i += 64) {
-        totalPixels++;
-        if (imgData[i] === 0) cleanPixels++;
-      }
-
-      const percent = Math.min(100, Math.round((cleanPixels / totalPixels) * 100));
-      progressFill.style.width = percent + '%';
-      progressText.innerText = percent + '%';
-
-      if (percent >= 88 && !isGameWon) {
-        isGameWon = true;
-        setWashingSound(false);
-        discountBadge.innerText = `كود الخصم: ${uniqueDiscountCode} (خصم 20%)`;
-        setTimeout(() => {
-          winModal.classList.add('active');
-        }, 400);
-      }
-    }
-
-    let checkThrottle = 0;
-    function triggerProgressCheck() {
-      checkThrottle++;
-      if (checkThrottle % 8 === 0) {
-        calculateCleanliness();
-      }
-    }
-
-    const startWash = (e) => {
-      if (e.target.closest('.weapons-bar') || e.target.closest('#winModal')) return;
-      ensureAudioUnlocked();
-
-      if (selectedWeapon === "HOSE") {
-        isWashing = true;
-        nozzleCursor.style.display = 'block';
-        nozzleCursor.style.left = `${e.clientX}px`;
-        nozzleCursor.style.top = `${e.clientY}px`;
-        setWashingSound(true);
-        washHose(e.clientX, e.clientY);
-      } else if (selectedWeapon === "BUCKET") {
-        washBucket(e.clientX, e.clientY);
-      } else if (selectedWeapon === "BOMB") {
-        throwBomb(e.clientX, e.clientY);
+    document.getElementById('factoryActionBtn').onclick = () => {
+      playBeep(450 + currentFactoryStep * 100, 0.2);
+      currentFactoryStep++;
+      if (currentFactoryStep < factoryStages.length) {
+        updateFactoryUI();
+      } else {
+        triggerWin("تمت مراحل الغسيل والتعطير الاحترافي لسجادتك بالكامل!");
       }
     };
 
-    const moveWash = (e) => {
-      if (!isWashing || selectedWeapon !== "HOSE") return;
-      nozzleCursor.style.left = `${e.clientX}px`;
-      nozzleCursor.style.top = `${e.clientY}px`;
-      washHose(e.clientX, e.clientY);
+    /* ================= 4. لعبة عجلة الحظ (WHEEL) ================= */
+    const wheelCanvas = document.getElementById('wheelCanvas');
+    const wheelCtx = wheelCanvas.getContext('2d');
+    const wheelPrizes = ["خصم 20%", "تعطير مجاني", "خصم 15%", "غسيل سيارة هدية", "خصم 25%", "توصيل مجاني"];
+    let wheelAngle = 0;
+
+    function initWheelGame() {
+      hudTitle.innerText = "عجلة حظ IN AND OUT";
+      wheelUI.style.display = 'flex';
+      drawWheel();
+    }
+
+    function drawWheel() {
+      const numSlices = wheelPrizes.length;
+      const sliceAngle = (Math.PI * 2) / numSlices;
+      const colors = ['#0284c7', '#0f172a', '#38bdf8', '#1e293b', '#0369a1', '#334155'];
+
+      wheelCtx.clearRect(0, 0, 300, 300);
+      for (let i = 0; i < numSlices; i++) {
+        wheelCtx.beginPath();
+        wheelCtx.fillStyle = colors[i];
+        wheelCtx.moveTo(150, 150);
+        wheelCtx.arc(150, 150, 145, i * sliceAngle, (i + 1) * sliceAngle);
+        wheelCtx.fill();
+        wheelCtx.stroke();
+
+        wheelCtx.save();
+        wheelCtx.translate(150, 150);
+        wheelCtx.rotate(i * sliceAngle + sliceAngle / 2);
+        wheelCtx.fillStyle = '#ffffff';
+        wheelCtx.font = 'bold 12px Segoe UI';
+        wheelCtx.textAlign = 'right';
+        wheelCtx.fillText(wheelPrizes[i], 135, 4);
+        wheelCtx.restore();
+      }
+    }
+
+    document.getElementById('spinWheelBtn').onclick = () => {
+      playBeep(600, 0.4);
+      const randDeg = Math.floor(1800 + Math.random() * 1440);
+      wheelCanvas.style.transform = `rotate(${randDeg}deg)`;
+      document.getElementById('spinWheelBtn').disabled = true;
+
+      setTimeout(() => {
+        triggerWin("مبروك! فزت بخصم فوري وعروض خاصة على خدماتنا!");
+        document.getElementById('spinWheelBtn').disabled = false;
+      }, 3600);
     };
 
-    const endWash = () => {
-      isWashing = false;
-      nozzleCursor.style.display = 'none';
-      setWashingSound(false);
-    };
-
-    window.addEventListener('pointerdown', startWash);
-    window.addEventListener('pointermove', moveWash);
-    window.addEventListener('pointerup', endWash);
-    window.addEventListener('pointercancel', endWash);
-
-    function render() {
-      ctx.clearRect(0, 0, width, height);
-      ctx.drawImage(cleanCanvas, 0, 0);
-      ctx.drawImage(dirtyCanvas, 0, 0);
-
-      // 1. رسم وتحديث الموجات الانفجارية المائية (Shockwaves)
-      for (let i = shockwaves.length - 1; i >= 0; i--) {
-        const sw = shockwaves[i];
-        sw.radius += (sw.maxRadius - sw.radius) * 0.18;
-        sw.alpha -= 0.035;
-
-        if (sw.alpha > 0) {
-          ctx.save();
-          ctx.strokeStyle = `rgba(56, 189, 248, ${sw.alpha})`;
-          ctx.lineWidth = 6;
-          ctx.beginPath();
-          ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
-          ctx.stroke();
-          ctx.restore();
-        } else {
-          shockwaves.splice(i, 1);
+    /* أحداث اللمس والتحكم العام */
+    window.addEventListener('pointerdown', (e) => {
+      if (currentGame === 'WASHER') {
+        if (e.target.closest('.weapons-bar') || e.target.closest('.top-bar')) return;
+        if (selectedWeapon === 'HOSE') {
+          isWashing = true;
+          washAt(e.clientX, e.clientY, 35);
+        } else if (selectedWeapon === 'BUCKET') {
+          washAt(e.clientX, e.clientY, 85);
+          playBeep(200, 0.2);
+        } else if (selectedWeapon === 'BOMB') {
+          activeBombs.push({ x: e.clientX, y: e.clientY, timer: 45 });
+          playBeep(500, 0.15);
         }
+      } else if (currentGame === 'RUNNER') {
+        runnerPlayer.targetX = e.clientX;
       }
+    });
 
-      // 2. رسم وتحديث قنابل الماء مع مسار الطيران والنبض لمدة ثانية كاملة
-      for (let i = activeBombs.length - 1; i >= 0; i--) {
-        const b = activeBombs[i];
-        b.timer--;
+    window.addEventListener('pointermove', (e) => {
+      if (currentGame === 'WASHER' && isWashing && selectedWeapon === 'HOSE') {
+        washAt(e.clientX, e.clientY, 35);
+      } else if (currentGame === 'RUNNER') {
+        runnerPlayer.targetX = e.clientX;
+      }
+    });
 
-        const progress = 1 - (b.timer / b.totalTime); // من 0 إلى 1
-        b.currentX = b.startX + (b.targetX - b.startX) * progress;
-        // مسار منحني قوسي
-        const arcY = Math.sin(progress * Math.PI) * 140;
-        b.currentY = (b.startY + (b.targetY - b.startY) * progress) - arcY;
+    window.addEventListener('pointerup', () => { isWashing = false; });
 
-        b.rotation += 0.15;
-        const pulse = 1 + Math.sin(progress * Math.PI * 4) * 0.25;
+    function washAt(x, y, radius) {
+      dirtyCtx.globalCompositeOperation = 'destination-out';
+      dirtyCtx.beginPath();
+      dirtyCtx.arc(x, y, radius, 0, Math.PI * 2);
+      dirtyCtx.fill();
+      dirtyCtx.globalCompositeOperation = 'source-over';
+    }
 
-        ctx.save();
-        ctx.translate(b.currentX, b.currentY);
-        ctx.rotate(b.rotation);
-        ctx.scale(pulse, pulse);
+    /* حلقة التحديث والرسم الرئيسية */
+    function loop() {
+      if (currentGame === 'WASHER') {
+        ctx.clearRect(0, 0, width, height);
+        ctx.drawImage(cleanCanvas, 0, 0);
+        ctx.drawImage(dirtyCanvas, 0, 0);
 
-        // هالة توهج حول القنبلة
-        ctx.shadowColor = '#38bdf8';
-        ctx.shadowBlur = 15;
-        ctx.font = '42px sans-serif';
+        for (let i = activeBombs.length - 1; i >= 0; i--) {
+          const b = activeBombs[i];
+          b.timer--;
+          ctx.font = '36px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('💣', b.x, b.y);
+
+          if (b.timer <= 0) {
+            washAt(b.x, b.y, 160);
+            playBeep(120, 0.5);
+            activeBombs.splice(i, 1);
+          }
+        }
+      } else if (currentGame === 'RUNNER' && runnerRunning) {
+        ctx.clearRect(0, 0, width, height);
+
+        // خلفية خط السير
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(0, 0, width, height);
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(30, 0, width - 60, height);
+
+        // تحريك اللاعب
+        runnerPlayer.x += (runnerPlayer.targetX - runnerPlayer.x) * 0.15;
+        ctx.font = '38px sans-serif';
         ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('💣', 0, 0);
-        ctx.restore();
+        ctx.fillText('🧻', runnerPlayer.x, runnerPlayer.y);
 
-        if (b.timer <= 0) {
-          explodeBomb(b.targetX, b.targetY);
-          activeBombs.splice(i, 1);
+        // توليد عناصر
+        if (Math.random() < 0.04) {
+          runnerItems.push({
+            x: 50 + Math.random() * (width - 100),
+            y: -30,
+            type: Math.random() > 0.3 ? 'SOAP' : 'MUD'
+          });
         }
+
+        // تحريك العناصر والاصطدام
+        for (let i = runnerItems.length - 1; i >= 0; i--) {
+          const item = runnerItems[i];
+          item.y += 5;
+          ctx.fillText(item.type === 'SOAP' ? '🧼' : '☕', item.x, item.y);
+
+          if (Math.hypot(item.x - runnerPlayer.x, item.y - runnerPlayer.y) < 40) {
+            if (item.type === 'SOAP') {
+              runnerPlayer.score++;
+              playBeep(600, 0.1);
+              if (runnerPlayer.score >= 5) {
+                runnerRunning = false;
+                triggerWin("جمعت كل الصابون المطلوب ونظفت سجادتك بنجاح!");
+              }
+            } else {
+              playBeep(150, 0.2);
+            }
+            runnerItems.splice(i, 1);
+          } else if (item.y > height + 40) {
+            runnerItems.splice(i, 1);
+          }
+        }
+
+        ctx.fillStyle = '#38bdf8';
+        ctx.font = 'bold 16px Segoe UI';
+        ctx.fillText(`الصابون: ${runnerPlayer.score} / 5`, width / 2, 80);
       }
 
-      // 3. رسم رذاذ الماء وفقاعات الرغوة
-      for (let i = 0; i < waterParticles.length; i++) {
-        const p = waterParticles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.alpha -= 0.03;
-        if (p.alpha > 0) {
-          ctx.fillStyle = `rgba(56, 189, 248, ${p.alpha})`;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-      waterParticles = waterParticles.filter(p => p.alpha > 0);
-
-      requestAnimationFrame(render);
+      requestAnimationFrame(loop);
     }
-    render();
+    loop();
 
-    // إرسال البيانات للـ Google Sheets وفتح الواتساب
+    // إرسال الطلب لـ Google Sheets وفتح الواتساب
     orderForm.onsubmit = (e) => {
       e.preventDefault();
       const submitBtn = orderForm.querySelector('.submit-btn');
@@ -689,7 +727,7 @@
       }).catch(() => {});
 
       const msg = `مرحباً مغسلة IN AND OUT ✨\n` +
-        `لقد فزت بكود خصم 20% في لعبة التنظيف 🎉\n\n` +
+        `لقد لعبت في مركز الألعاب وفزت بكود خصم 20% 🎉\n\n` +
         `🏷️ *كود الخصم:* ${uniqueDiscountCode}\n` +
         `👤 *الاسم:* ${custName}\n` +
         `📞 *الموبايل:* ${custPhone}\n` +
