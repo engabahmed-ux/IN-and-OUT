@@ -159,12 +159,13 @@
       background: rgba(56, 189, 248, 0.12);
       border: 1px dashed #38bdf8;
       color: #38bdf8;
-      font-size: 15px;
+      font-size: 16px;
       font-weight: bold;
       padding: 6px 14px;
       border-radius: 10px;
       margin-bottom: 14px;
       display: inline-block;
+      letter-spacing: 1px;
     }
 
     .order-form {
@@ -186,8 +187,8 @@
     .order-form input:focus, .order-form select:focus { border-color: #38bdf8; }
     
     .submit-btn {
-      background: linear-gradient(135deg, #38bdf8, #0284c7);
-      color: #04101e;
+      background: linear-gradient(135deg, #25D366, #128C7E);
+      color: #ffffff;
       font-size: 15px;
       font-weight: bold;
       border: none;
@@ -195,7 +196,11 @@
       border-radius: 10px;
       cursor: pointer;
       margin-top: 4px;
-      box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+      box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
   </style>
 </head>
@@ -212,7 +217,6 @@
     </div>
   </div>
 
-  <!-- شريط الأسلحة الثلاثة -->
   <div class="weapons-bar">
     <button class="weapon-btn active" id="btnHose">
       <span class="icon">🔫</span>
@@ -243,7 +247,7 @@
       <h2>نظافة تليق ببيتك وسيارتك! ✨</h2>
       <p>مبروك! تم تنظيف السجادة بنسبة 100% وحصلت على خصم فوري.</p>
       
-      <div class="discount-badge">كود الخصم: INOUT20 (خصم 20%)</div>
+      <div class="discount-badge" id="discountBadge">كود الخصم: ...</div>
 
       <form class="order-form" id="orderForm">
         <input type="text" id="custName" placeholder="الاسم الكريم" required>
@@ -254,13 +258,26 @@
           <option value="غسيل وتلميع سيارة">غسيل وتلميع سيارات (Car Wash)</option>
           <option value="سجاد + سيارة (عرض خاص)">باقة كاملة: سجاد + غسيل سيارة</option>
         </select>
-        <button type="submit" class="submit-btn">احجز الآن واستفد بالخصم 🚚🚗</button>
+        <button type="submit" class="submit-btn">
+          <span>تأكيد الحجز عبر واتساب 💬</span>
+        </button>
       </form>
     </div>
   </div>
 
   <script>
+    // رابط جوجل شيت لتسجيل الحجوزات
     const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbweP5a-8B1xKKJi-7U1N3Yh9od5LulIPjNXNSOK0gRWsn2P5TUoTYMrBin6b2736e4p/exec";
+    
+    // رقم واتساب مغسلة IN AND OUT لاستقبال الرسائل وتأكيد الكود مع العميل
+    const BUSINESS_WHATSAPP_PHONE = "201009204577";
+
+    let generatedDiscountCode = "";
+
+    function generateUniqueCode() {
+      const rand = Math.floor(1000 + Math.random() * 9000);
+      return `INOUT-${rand}`;
+    }
 
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -269,6 +286,7 @@
     const nozzleCursor = document.getElementById('nozzleCursor');
     const winModal = document.getElementById('winModal');
     const orderForm = document.getElementById('orderForm');
+    const discountBadge = document.getElementById('discountBadge');
 
     const btnHose = document.getElementById('btnHose');
     const btnBucket = document.getElementById('btnBucket');
@@ -311,7 +329,9 @@
         const bufferSize = audioCtx.sampleRate * 2;
         const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
         const output = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = Math.random() * 2 - 1;
+        }
 
         const whiteNoise = audioCtx.createBufferSource();
         whiteNoise.buffer = noiseBuffer;
@@ -508,6 +528,8 @@
       if (percent >= 88 && !isGameWon) {
         isGameWon = true;
         setWashingSound(false);
+        generatedDiscountCode = generateUniqueCode();
+        discountBadge.innerText = `كود الخصم: ${generatedDiscountCode} (خصم 20%)`;
         setTimeout(() => {
           winModal.classList.add('active');
         }, 350);
@@ -593,34 +615,51 @@
     }
     render();
 
-    // إرسال البيانات المباشر إلى Google Sheets
+    // إرسال البيانات لشيت الإكسيل + فتح الواتساب فوراً
     orderForm.onsubmit = (e) => {
       e.preventDefault();
       const submitBtn = orderForm.querySelector('.submit-btn');
-      submitBtn.innerText = "جاري تسجيل الحجز...";
+      submitBtn.innerText = "جاري الحجز والتحويل لواتساب...";
       submitBtn.disabled = true;
 
+      const custName = document.getElementById('custName').value.trim();
+      const custPhone = document.getElementById('custPhone').value.trim();
+      const custAddress = document.getElementById('custAddress').value.trim();
+      const serviceType = document.getElementById('serviceType').value;
+      const finalCode = generatedDiscountCode || "INOUT20";
+
       const orderPayload = {
-        name: document.getElementById('custName').value,
-        phone: document.getElementById('custPhone').value,
-        address: document.getElementById('custAddress').value,
-        service: document.getElementById('serviceType').value,
-        code: "INOUT20",
+        name: custName,
+        phone: custPhone,
+        address: custAddress,
+        service: serviceType,
+        code: finalCode,
         timestamp: new Date().toLocaleString('ar-EG')
       };
 
+      // 1. التسجيل في Google Sheets
       fetch(GOOGLE_SHEETS_URL, {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderPayload)
-      }).then(() => {
-        alert("تم استلام طلبك وتسجيله بنجاح لدى مغسلة IN AND OUT! سنتواصل معك هاتفياً فوراً 🚚✨");
-        location.reload();
-      }).catch(() => {
-        alert("تم تسجيل طلبك بنجاح!");
-        location.reload();
-      });
+      }).catch(() => {});
+
+      // 2. تحضير رسالة الواتساب وفتحها للعميل
+      const whatsappMsg = `مرحباً مغسلة IN AND OUT ✨\n` +
+        `لقد لعبت لعبة التنظيف وفزت بكود خصم 20% 🎉\n\n` +
+        `🏷️ *كود الخصم:* ${finalCode}\n` +
+        `👤 *الاسم:* ${custName}\n` +
+        `📞 *الموبايل:* ${custPhone}\n` +
+        `📍 *العنوان:* ${custAddress}\n` +
+        `🚗 *الخدمة المطلوبة:* ${serviceType}\n\n` +
+        `أريد تأكيد موعد الاستلام والاستفادة بالخصم.`;
+
+      const whatsappUrl = `https://wa.me/${BUSINESS_WHATSAPP_PHONE}?text=${encodeURIComponent(whatsappMsg)}`;
+
+      setTimeout(() => {
+        window.location.href = whatsappUrl;
+      }, 500);
     };
   </script>
 </body>
