@@ -34,7 +34,6 @@
     .hud-brand {
       font-weight: 900;
       font-size: 14px;
-      letter-spacing: 0.5px;
       color: #38bdf8;
       border-left: 1px solid rgba(255, 255, 255, 0.2);
       padding-left: 10px;
@@ -68,6 +67,44 @@
       height: 100vh;
       cursor: crosshair;
     }
+
+    .weapons-bar {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 35px;
+      padding: 6px 12px;
+      display: flex;
+      gap: 10px;
+      z-index: 15;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+    }
+    .weapon-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid transparent;
+      border-radius: 25px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #cbd5e1;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .weapon-btn.active {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: #38bdf8;
+      color: #38bdf8;
+      transform: scale(1.05);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+    }
+    .weapon-btn span.icon { font-size: 20px; }
 
     #nozzleCursor {
       position: fixed;
@@ -175,6 +212,22 @@
     </div>
   </div>
 
+  <!-- شريط الأسلحة الثلاثة -->
+  <div class="weapons-bar">
+    <button class="weapon-btn active" id="btnHose">
+      <span class="icon">🔫</span>
+      <span>مسدس ضغط</span>
+    </button>
+    <button class="weapon-btn" id="btnBucket">
+      <span class="icon">🪣</span>
+      <span>جردل ماء</span>
+    </button>
+    <button class="weapon-btn" id="btnBomb">
+      <span class="icon">💣</span>
+      <span>قنبلة رغوة</span>
+    </button>
+  </div>
+
   <div id="nozzleCursor"></div>
   <canvas id="gameCanvas"></canvas>
 
@@ -207,22 +260,7 @@
   </div>
 
   <script>
-    // روابط الحفظ والإشعارات
-    const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbwG_WrW9csXLPdSY8kV9DGr_Vupr5JKQdF00q6bO6xoiu_G9u4GPARSqH_CWXw3VQg6/exec";
-    const FORMSPREE_ENDPOINT = "https://formspree.io/f/mnpalrno";
-
-    // تتبع فتح العميل للرابط
-    window.addEventListener('load', () => {
-      fetch(FORMSPREE_ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          الحدث: "🚀 فتح رابط لعبة مغسلة IN AND OUT",
-          الوقت: new Date().toLocaleString('ar-EG'),
-          الشاشة: `${window.innerWidth}x${window.innerHeight}`
-        })
-      }).catch(() => {});
-    });
+    const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbweP5a-8B1xKKJi-7U1N3Yh9od5LulIPjNXNSOK0gRWsn2P5TUoTYMrBin6b2736e4p/exec";
 
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -231,6 +269,10 @@
     const nozzleCursor = document.getElementById('nozzleCursor');
     const winModal = document.getElementById('winModal');
     const orderForm = document.getElementById('orderForm');
+
+    const btnHose = document.getElementById('btnHose');
+    const btnBucket = document.getElementById('btnBucket');
+    const btnBomb = document.getElementById('btnBomb');
 
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = window.innerHeight;
@@ -245,8 +287,18 @@
 
     let isWashing = false;
     let waterParticles = [];
+    let activeBombs = [];
     let isGameWon = false;
-    const WASH_RADIUS = 36;
+    let selectedWeapon = "HOSE";
+
+    function setWeapon(weapon, btn) {
+      selectedWeapon = weapon;
+      document.querySelectorAll('.weapon-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+    btnHose.onclick = (e) => { e.stopPropagation(); setWeapon("HOSE", btnHose); };
+    btnBucket.onclick = (e) => { e.stopPropagation(); setWeapon("BUCKET", btnBucket); };
+    btnBomb.onclick = (e) => { e.stopPropagation(); setWeapon("BOMB", btnBomb); };
 
     let audioCtx = null;
     let noiseGain = null;
@@ -259,9 +311,7 @@
         const bufferSize = audioCtx.sampleRate * 2;
         const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
         const output = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-          output[i] = Math.random() * 2 - 1;
-        }
+        for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
 
         const whiteNoise = audioCtx.createBufferSource();
         whiteNoise.buffer = noiseBuffer;
@@ -280,10 +330,7 @@
         noiseGain.connect(audioCtx.destination);
         whiteNoise.start(0);
       }
-
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
     }
 
     function setWashingSound(active) {
@@ -294,9 +341,23 @@
         noiseGain.gain.setValueAtTime(noiseGain.gain.value, audioCtx.currentTime);
         noiseGain.gain.linearRampToValueAtTime(targetVol, audioCtx.currentTime + 0.04);
       }
-      if (active && navigator.vibrate) {
-        navigator.vibrate(30);
-      }
+      if (active && navigator.vibrate) navigator.vibrate(25);
+    }
+
+    function playSplashSound(pitch = 200, duration = 0.4) {
+      ensureAudioUnlocked();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + duration);
+      gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+      if (navigator.vibrate) navigator.vibrate([40, 20, 60]);
     }
 
     function generateCleanCarpet() {
@@ -349,31 +410,87 @@
     generateCleanCarpet();
     generateDirtyLayer();
 
-    function washAt(x, y) {
+    function washHose(x, y) {
       dirtyCtx.globalCompositeOperation = 'destination-out';
       dirtyCtx.beginPath();
-      dirtyCtx.arc(x, y, WASH_RADIUS, 0, Math.PI * 2);
+      dirtyCtx.arc(x, y, 36, 0, Math.PI * 2);
       dirtyCtx.fill();
       dirtyCtx.globalCompositeOperation = 'source-over';
 
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 5; i++) {
         waterParticles.push({
-          x: x + (Math.random() - 0.5) * 25,
-          y: y + (Math.random() - 0.5) * 25,
+          x: x + (Math.random() - 0.5) * 20,
+          y: y + (Math.random() - 0.5) * 20,
           vx: (Math.random() - 0.5) * 6,
           vy: (Math.random() - 0.5) * 6,
           size: Math.random() * 4 + 2,
           alpha: 0.8
         });
       }
+      checkCleanliness();
+    }
 
+    function washBucket(x, y) {
+      playSplashSound(140, 0.4);
+      dirtyCtx.globalCompositeOperation = 'destination-out';
+      dirtyCtx.beginPath();
+      dirtyCtx.arc(x, y, 85, 0, Math.PI * 2);
+      dirtyCtx.fill();
+      dirtyCtx.globalCompositeOperation = 'source-over';
+
+      for (let i = 0; i < 35; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 7 + 2;
+        waterParticles.push({
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          size: Math.random() * 8 + 4,
+          alpha: 0.95
+        });
+      }
+      checkCleanliness();
+    }
+
+    function throwBomb(x, y) {
+      playSplashSound(320, 0.2);
+      activeBombs.push({
+        x: x,
+        y: y,
+        scale: 0.2,
+        maxScale: 1.0,
+        timer: 18
+      });
+    }
+
+    function explodeBomb(x, y) {
+      playSplashSound(80, 0.6);
+      dirtyCtx.globalCompositeOperation = 'destination-out';
+      dirtyCtx.beginPath();
+      dirtyCtx.arc(x, y, 160, 0, Math.PI * 2);
+      dirtyCtx.fill();
+      dirtyCtx.globalCompositeOperation = 'source-over';
+
+      for (let i = 0; i < 70; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 14 + 3;
+        waterParticles.push({
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          size: Math.random() * 10 + 5,
+          alpha: 1.0
+        });
+      }
       checkCleanliness();
     }
 
     let checkThrottle = 0;
     function checkCleanliness() {
       checkThrottle++;
-      if (checkThrottle % 15 !== 0 || isGameWon) return;
+      if (checkThrottle % 10 !== 0 || isGameWon) return;
 
       const imgData = dirtyCtx.getImageData(0, 0, width, height).data;
       let totalPixels = 0;
@@ -398,19 +515,28 @@
     }
 
     const startWash = (e) => {
-      isWashing = true;
-      nozzleCursor.style.display = 'block';
-      nozzleCursor.style.left = `${e.clientX}px`;
-      nozzleCursor.style.top = `${e.clientY}px`;
-      setWashingSound(true);
-      washAt(e.clientX, e.clientY);
+      if (e.target.closest('.weapons-bar') || e.target.closest('#winModal')) return;
+      ensureAudioUnlocked();
+
+      if (selectedWeapon === "HOSE") {
+        isWashing = true;
+        nozzleCursor.style.display = 'block';
+        nozzleCursor.style.left = `${e.clientX}px`;
+        nozzleCursor.style.top = `${e.clientY}px`;
+        setWashingSound(true);
+        washHose(e.clientX, e.clientY);
+      } else if (selectedWeapon === "BUCKET") {
+        washBucket(e.clientX, e.clientY);
+      } else if (selectedWeapon === "BOMB") {
+        throwBomb(e.clientX, e.clientY);
+      }
     };
 
     const moveWash = (e) => {
-      if (!isWashing) return;
+      if (!isWashing || selectedWeapon !== "HOSE") return;
       nozzleCursor.style.left = `${e.clientX}px`;
       nozzleCursor.style.top = `${e.clientY}px`;
-      washAt(e.clientX, e.clientY);
+      washHose(e.clientX, e.clientY);
     };
 
     const endWash = () => {
@@ -428,6 +554,26 @@
       ctx.clearRect(0, 0, width, height);
       ctx.drawImage(cleanCanvas, 0, 0);
       ctx.drawImage(dirtyCanvas, 0, 0);
+
+      for (let i = activeBombs.length - 1; i >= 0; i--) {
+        const b = activeBombs[i];
+        b.timer--;
+        b.scale += (b.maxScale - b.scale) * 0.15;
+
+        ctx.save();
+        ctx.translate(b.x, b.y);
+        ctx.scale(b.scale, b.scale);
+        ctx.font = '36px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('💣', 0, 0);
+        ctx.restore();
+
+        if (b.timer <= 0) {
+          explodeBomb(b.x, b.y);
+          activeBombs.splice(i, 1);
+        }
+      }
 
       for (let i = 0; i < waterParticles.length; i++) {
         const p = waterParticles[i];
@@ -447,11 +593,11 @@
     }
     render();
 
-    // إرسال البيانات إلى شيت Google Sheets و Formspree معاً
+    // إرسال البيانات المباشر إلى Google Sheets
     orderForm.onsubmit = (e) => {
       e.preventDefault();
       const submitBtn = orderForm.querySelector('.submit-btn');
-      submitBtn.innerText = "جاري الحجز وتسجيل البيانات...";
+      submitBtn.innerText = "جاري تسجيل الحجز...";
       submitBtn.disabled = true;
 
       const orderPayload = {
@@ -463,27 +609,11 @@
         timestamp: new Date().toLocaleString('ar-EG')
       };
 
-      // 1. الإرسال إلى Google Sheets Webhook
       fetch(GOOGLE_SHEETS_URL, {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderPayload)
-      }).catch(() => {});
-
-      // 2. الإرسال إلى Formspree لتنبيهك بالإيميل فوراً
-      fetch(FORMSPREE_ENDPOINT, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          الخدمة: "حجز مغسلة IN AND OUT",
-          نوع_الطلب: orderPayload.service,
-          الاسم: orderPayload.name,
-          الموبايل: orderPayload.phone,
-          العنوان: orderPayload.address,
-          كود_الخصم: orderPayload.code,
-          التاريخ: orderPayload.timestamp
-        })
       }).then(() => {
         alert("تم استلام طلبك وتسجيله بنجاح لدى مغسلة IN AND OUT! سنتواصل معك هاتفياً فوراً 🚚✨");
         location.reload();
