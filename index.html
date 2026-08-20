@@ -71,7 +71,7 @@
     .game-card .title { font-size: 14px; font-weight: bold; color: #f8fafc; }
     .game-card .desc { font-size: 11px; color: #94a3b8; margin-top: 4px; }
 
-    /* عناصر شاشة اللعب العامة */
+    /* الشريط العلوي المشترك وعداد النسبة */
     .top-bar {
       display: none;
       position: fixed;
@@ -99,13 +99,50 @@
     }
     .hud-title { font-weight: bold; font-size: 13px; color: #38bdf8; }
 
+    .progress-box {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #f1f5f9;
+    }
+    .progress-bar-bg {
+      width: 75px;
+      height: 8px;
+      background: #1e293b;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #00e676);
+      transition: width 0.15s ease-out;
+    }
+
     #gameCanvas {
       display: none;
       width: 100vw;
       height: 100vh;
+      cursor: crosshair;
     }
 
-    /* شريط الأسلحة للعبة 1 */
+    #nozzleCursor {
+      position: fixed;
+      width: 44px;
+      height: 44px;
+      border: 2px dashed rgba(56, 189, 248, 0.9);
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      display: none;
+      z-index: 5;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+    }
+
+    /* أسلحة مسدس الضغط */
     .weapons-bar {
       display: none;
       position: fixed;
@@ -307,13 +344,20 @@
     </div>
   </div>
 
-  <!-- الشريط العلوي أثناء اللعب -->
+  <!-- الشريط العلوي أثناء اللعب مع عداد النسبة -->
   <div class="top-bar" id="gameTopBar">
     <button class="btn-back-hub" onclick="backToHub()">🏠 القائمة</button>
     <div class="hud-title" id="hudTitle">تحدي النظافة</div>
+    <div class="progress-box" id="washerProgressBox">
+      <span>النظافة:</span>
+      <div class="progress-bar-bg">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <span id="progressText">0%</span>
+    </div>
   </div>
 
-  <!-- كانفاس الألعاب الرسومية (1 و 2) -->
+  <div id="nozzleCursor"></div>
   <canvas id="gameCanvas"></canvas>
 
   <!-- أسلحة مسدس الضغط -->
@@ -375,6 +419,11 @@
     const hubScreen = document.getElementById('hubScreen');
     const topBar = document.getElementById('gameTopBar');
     const hudTitle = document.getElementById('hudTitle');
+    const washerProgressBox = document.getElementById('washerProgressBox');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    const nozzleCursor = document.getElementById('nozzleCursor');
+
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     const washerWeapons = document.getElementById('washerWeapons');
@@ -392,14 +441,107 @@
       height = canvas.height = window.innerHeight;
     });
 
-    /* Audio */
+    /* محرك الصوت الشامل لضغط الماء والانفجارات المائية */
     let audioCtx = null;
+    let hoseNoiseGain = null;
+
     function unlockAudio() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        // 1. مولد صوت ضغط وتدفق ماء المسدس المستمر (Hose Sound)
+        const bufferSize = audioCtx.sampleRate * 2;
+        const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+
+        const whiteNoise = audioCtx.createBufferSource();
+        whiteNoise.buffer = noiseBuffer;
+        whiteNoise.loop = true;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1250, audioCtx.currentTime);
+        filter.Q.setValueAtTime(1.6, audioCtx.currentTime);
+
+        hoseNoiseGain = audioCtx.createGain();
+        hoseNoiseGain.gain.setValueAtTime(0, audioCtx.currentTime);
+
+        whiteNoise.connect(filter);
+        filter.connect(hoseNoiseGain);
+        hoseNoiseGain.connect(audioCtx.destination);
+        whiteNoise.start(0);
       }
       if (audioCtx.state === 'suspended') audioCtx.resume();
     }
+
+    function setHoseSound(active) {
+      unlockAudio();
+      if (hoseNoiseGain && audioCtx) {
+        const targetVol = active ? 0.35 : 0.0001;
+        hoseNoiseGain.gain.cancelScheduledValues(audioCtx.currentTime);
+        hoseNoiseGain.gain.setValueAtTime(hoseNoiseGain.gain.value, audioCtx.currentTime);
+        hoseNoiseGain.gain.linearRampToValueAtTime(targetVol, audioCtx.currentTime + 0.04);
+      }
+      if (active && navigator.vibrate) navigator.vibrate(25);
+    }
+
+    // 2. صوت انفجار مائي واقعي (Water Bomb Explosion ASMR)
+    function playWaterExplosionSound() {
+      unlockAudio();
+
+      // دوي انفجار مائي عميق (Heavy Thump)
+      const subOsc = audioCtx.createOscillator();
+      const subGain = audioCtx.createGain();
+      subOsc.type = 'sine';
+      subOsc.frequency.setValueAtTime(140, audioCtx.currentTime);
+      subOsc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 0.6);
+      subGain.gain.setValueAtTime(0.7, audioCtx.currentTime);
+      subGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+      subOsc.connect(subGain);
+      subGain.connect(audioCtx.destination);
+      subOsc.start();
+      subOsc.stop(audioCtx.currentTime + 0.6);
+
+      // رذاذ تكسر الماء والرغوة العنيف
+      const bufferSize = audioCtx.sampleRate * 0.5;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+
+      const noise = audioCtx.createBufferSource();
+      noise.buffer = noiseBuffer;
+      const noiseFilter = audioCtx.createBiquadFilter();
+      noiseFilter.type = 'lowpass';
+      noiseFilter.frequency.setValueAtTime(800, audioCtx.currentTime);
+
+      const splashGain = audioCtx.createGain();
+      splashGain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+      splashGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+
+      noise.connect(noiseFilter);
+      noiseFilter.connect(splashGain);
+      splashGain.connect(audioCtx.destination);
+      noise.start();
+
+      if (navigator.vibrate) navigator.vibrate([60, 30, 90]);
+    }
+
+    function playSplashSound(pitch = 200, dur = 0.3) {
+      unlockAudio();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(pitch, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + dur);
+      gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + dur);
+    }
+
     function playBeep(freq = 400, dur = 0.2) {
       unlockAudio();
       const osc = audioCtx.createOscillator();
@@ -414,15 +556,19 @@
     }
 
     function triggerWin(msg) {
+      setHoseSound(false);
       document.getElementById('winSubText').innerText = msg;
       discountBadge.innerText = `كود الخصم: ${uniqueDiscountCode} (خصم 20%)`;
       winModal.classList.add('active');
     }
 
     function backToHub() {
+      setHoseSound(false);
       currentGame = null;
       canvas.style.display = 'none';
+      nozzleCursor.style.display = 'none';
       washerWeapons.style.display = 'none';
+      washerProgressBox.style.display = 'none';
       factoryUI.style.display = 'none';
       wheelUI.style.display = 'none';
       topBar.style.display = 'none';
@@ -445,12 +591,17 @@
     /* ================= 1. لعبة مسدس الضغط (WASHER) ================= */
     let cleanCanvas, cleanCtx, dirtyCanvas, dirtyCtx;
     let selectedWeapon = "HOSE";
-    let isWashing = false, activeBombs = [], waterParticles = [];
+    let isWashing = false, activeBombs = [], waterParticles = [], shockwaves = [];
+    let isWasherWon = false;
 
     function initWasherGame() {
-      hudTitle.innerText = "مسدس الضغط: نظف السجادة";
+      hudTitle.innerText = "مسدس الضغط";
+      washerProgressBox.style.display = 'flex';
       canvas.style.display = 'block';
       washerWeapons.style.display = 'flex';
+      isWasherWon = false;
+      progressFill.style.width = '0%';
+      progressText.innerText = '0%';
 
       cleanCanvas = document.createElement('canvas');
       cleanCtx = cleanCanvas.getContext('2d');
@@ -459,18 +610,45 @@
       cleanCanvas.width = dirtyCanvas.width = width;
       cleanCanvas.height = dirtyCanvas.height = height;
 
+      // رسم السجادة النظيفة
       cleanCtx.fillStyle = '#0f172a';
       cleanCtx.fillRect(0, 0, width, height);
       cleanCtx.strokeStyle = '#38bdf8';
       cleanCtx.lineWidth = 12;
       cleanCtx.strokeRect(25, 25, width - 50, height - 50);
+      cleanCtx.strokeStyle = '#f59e0b';
+      cleanCtx.lineWidth = 4;
+      cleanCtx.strokeRect(40, 40, width - 80, height - 80);
+
       cleanCtx.fillStyle = '#1e3a8a';
       cleanCtx.beginPath();
-      cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.25, 0, Math.PI * 2);
+      cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.28, 0, Math.PI * 2);
       cleanCtx.fill();
 
+      cleanCtx.fillStyle = '#0284c7';
+      cleanCtx.beginPath();
+      cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.18, 0, Math.PI * 2);
+      cleanCtx.fill();
+
+      cleanCtx.fillStyle = '#f59e0b';
+      cleanCtx.beginPath();
+      cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.09, 0, Math.PI * 2);
+      cleanCtx.fill();
+
+      cleanCtx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+      cleanCtx.font = 'bold 26px sans-serif';
+      cleanCtx.textAlign = 'center';
+      cleanCtx.fillText('IN AND OUT CLEAN', width / 2, height / 2 + Math.min(width, height) * 0.36);
+
+      // رسم طبقة الأوساخ
       dirtyCtx.fillStyle = '#38220f';
       dirtyCtx.fillRect(0, 0, width, height);
+      for (let i = 0; i < 40; i++) {
+        dirtyCtx.fillStyle = i % 2 === 0 ? '#1c0f05' : '#261408';
+        dirtyCtx.beginPath();
+        dirtyCtx.arc(Math.random() * width, Math.random() * height, Math.random() * 55 + 25, 0, Math.PI * 2);
+        dirtyCtx.fill();
+      }
     }
 
     document.getElementById('btnHose').onclick = () => { selectedWeapon = "HOSE"; updateWeaponBtns(); };
@@ -483,6 +661,125 @@
       document.getElementById('btnBomb').className = 'weapon-btn ' + (selectedWeapon === 'BOMB' ? 'active' : '');
     }
 
+    function washHose(x, y) {
+      dirtyCtx.globalCompositeOperation = 'destination-out';
+      dirtyCtx.beginPath();
+      dirtyCtx.arc(x, y, 36, 0, Math.PI * 2);
+      dirtyCtx.fill();
+      dirtyCtx.globalCompositeOperation = 'source-over';
+
+      for (let i = 0; i < 4; i++) {
+        waterParticles.push({
+          x: x + (Math.random() - 0.5) * 20,
+          y: y + (Math.random() - 0.5) * 20,
+          vx: (Math.random() - 0.5) * 6,
+          vy: (Math.random() - 0.5) * 6,
+          size: Math.random() * 4 + 2,
+          alpha: 0.8
+        });
+      }
+      triggerProgressCheck();
+    }
+
+    function washBucket(x, y) {
+      playSplashSound(140, 0.4);
+      dirtyCtx.globalCompositeOperation = 'destination-out';
+      dirtyCtx.beginPath();
+      dirtyCtx.arc(x, y, 95, 0, Math.PI * 2);
+      dirtyCtx.fill();
+      dirtyCtx.globalCompositeOperation = 'source-over';
+
+      shockwaves.push({ x: x, y: y, radius: 10, maxRadius: 100, alpha: 0.9 });
+
+      for (let i = 0; i < 40; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 8 + 3;
+        waterParticles.push({
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          size: Math.random() * 8 + 4,
+          alpha: 0.95
+        });
+      }
+      calculateCleanliness();
+    }
+
+    function throwBomb(targetX, targetY) {
+      playSplashSound(350, 0.2);
+      activeBombs.push({
+        startX: width / 2,
+        startY: height + 30,
+        targetX: targetX,
+        targetY: targetY,
+        currentX: width / 2,
+        currentY: height + 30,
+        timer: 60,
+        totalTime: 60,
+        rotation: 0
+      });
+    }
+
+    function explodeBomb(x, y) {
+      playWaterExplosionSound(); // صوت الانفجار المائي الحقيقي
+
+      dirtyCtx.globalCompositeOperation = 'destination-out';
+      dirtyCtx.beginPath();
+      dirtyCtx.arc(x, y, 175, 0, Math.PI * 2);
+      dirtyCtx.fill();
+      dirtyCtx.globalCompositeOperation = 'source-over';
+
+      shockwaves.push({ x: x, y: y, radius: 15, maxRadius: 180, alpha: 1.0 });
+
+      for (let i = 0; i < 80; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 15 + 4;
+        waterParticles.push({
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          size: Math.random() * 10 + 5,
+          alpha: 1.0
+        });
+      }
+      calculateCleanliness();
+    }
+
+    function calculateCleanliness() {
+      if (isWasherWon || currentGame !== 'WASHER') return;
+
+      const imgData = dirtyCtx.getImageData(0, 0, width, height).data;
+      let totalPixels = 0;
+      let cleanPixels = 0;
+
+      for (let i = 3; i < imgData.length; i += 64) {
+        totalPixels++;
+        if (imgData[i] === 0) cleanPixels++;
+      }
+
+      const percent = Math.min(100, Math.round((cleanPixels / totalPixels) * 100));
+      progressFill.style.width = percent + '%';
+      progressText.innerText = percent + '%';
+
+      if (percent >= 88 && !isWasherWon) {
+        isWasherWon = true;
+        setHoseSound(false);
+        setTimeout(() => {
+          triggerWin("تم تنظيف السجادة بنسبة 100% بنجاح وسرعة فائقة!");
+        }, 400);
+      }
+    }
+
+    let checkThrottle = 0;
+    function triggerProgressCheck() {
+      checkThrottle++;
+      if (checkThrottle % 8 === 0) {
+        calculateCleanliness();
+      }
+    }
+
     /* ================= 2. لعبة رول السجاد السريع (RUNNER) ================= */
     let runnerPlayer = { x: 0, targetX: 0, y: 0, score: 0 };
     let runnerItems = [];
@@ -490,8 +787,10 @@
 
     function initRunnerGame() {
       hudTitle.innerText = "رول السجاد: اجمع 5 صابونات";
+      washerProgressBox.style.display = 'none';
       canvas.style.display = 'block';
       washerWeapons.style.display = 'none';
+      nozzleCursor.style.display = 'none';
 
       runnerPlayer.x = width / 2;
       runnerPlayer.targetX = width / 2;
@@ -511,6 +810,8 @@
     let currentFactoryStep = 0;
 
     function initFactoryGame() {
+      hudTitle.innerText = "خط الإنتاج الذكي";
+      washerProgressBox.style.display = 'none';
       factoryUI.style.display = 'flex';
       currentFactoryStep = 0;
       updateFactoryUI();
@@ -539,10 +840,10 @@
     const wheelCanvas = document.getElementById('wheelCanvas');
     const wheelCtx = wheelCanvas.getContext('2d');
     const wheelPrizes = ["خصم 20%", "تعطير مجاني", "خصم 15%", "غسيل سيارة هدية", "خصم 25%", "توصيل مجاني"];
-    let wheelAngle = 0;
 
     function initWheelGame() {
-      hudTitle.innerText = "عجلة حظ IN AND OUT";
+      hudTitle.innerText = "عجلة الحظ والنظافة";
+      washerProgressBox.style.display = 'none';
       wheelUI.style.display = 'flex';
       drawWheel();
     }
@@ -587,16 +888,20 @@
     /* أحداث اللمس والتحكم العام */
     window.addEventListener('pointerdown', (e) => {
       if (currentGame === 'WASHER') {
-        if (e.target.closest('.weapons-bar') || e.target.closest('.top-bar')) return;
+        if (e.target.closest('.weapons-bar') || e.target.closest('.top-bar') || e.target.closest('#winModal')) return;
+        unlockAudio();
+
         if (selectedWeapon === 'HOSE') {
           isWashing = true;
-          washAt(e.clientX, e.clientY, 35);
+          nozzleCursor.style.display = 'block';
+          nozzleCursor.style.left = `${e.clientX}px`;
+          nozzleCursor.style.top = `${e.clientY}px`;
+          setHoseSound(true);
+          washHose(e.clientX, e.clientY);
         } else if (selectedWeapon === 'BUCKET') {
-          washAt(e.clientX, e.clientY, 85);
-          playBeep(200, 0.2);
+          washBucket(e.clientX, e.clientY);
         } else if (selectedWeapon === 'BOMB') {
-          activeBombs.push({ x: e.clientX, y: e.clientY, timer: 45 });
-          playBeep(500, 0.15);
+          throwBomb(e.clientX, e.clientY);
         }
       } else if (currentGame === 'RUNNER') {
         runnerPlayer.targetX = e.clientX;
@@ -604,22 +909,26 @@
     });
 
     window.addEventListener('pointermove', (e) => {
-      if (currentGame === 'WASHER' && isWashing && selectedWeapon === 'HOSE') {
-        washAt(e.clientX, e.clientY, 35);
+      if (currentGame === 'WASHER') {
+        if (selectedWeapon === 'HOSE') {
+          nozzleCursor.style.left = `${e.clientX}px`;
+          nozzleCursor.style.top = `${e.clientY}px`;
+          if (isWashing) washHose(e.clientX, e.clientY);
+        }
       } else if (currentGame === 'RUNNER') {
         runnerPlayer.targetX = e.clientX;
       }
     });
 
-    window.addEventListener('pointerup', () => { isWashing = false; });
-
-    function washAt(x, y, radius) {
-      dirtyCtx.globalCompositeOperation = 'destination-out';
-      dirtyCtx.beginPath();
-      dirtyCtx.arc(x, y, radius, 0, Math.PI * 2);
-      dirtyCtx.fill();
-      dirtyCtx.globalCompositeOperation = 'source-over';
-    }
+    const stopWasherTouch = () => {
+      if (currentGame === 'WASHER') {
+        isWashing = false;
+        nozzleCursor.style.display = 'none';
+        setHoseSound(false);
+      }
+    };
+    window.addEventListener('pointerup', stopWasherTouch);
+    window.addEventListener('pointercancel', stopWasherTouch);
 
     /* حلقة التحديث والرسم الرئيسية */
     function loop() {
@@ -628,36 +937,84 @@
         ctx.drawImage(cleanCanvas, 0, 0);
         ctx.drawImage(dirtyCanvas, 0, 0);
 
+        // موجات الصدمة الانفجارية
+        for (let i = shockwaves.length - 1; i >= 0; i--) {
+          const sw = shockwaves[i];
+          sw.radius += (sw.maxRadius - sw.radius) * 0.18;
+          sw.alpha -= 0.035;
+          if (sw.alpha > 0) {
+            ctx.save();
+            ctx.strokeStyle = `rgba(56, 189, 248, ${sw.alpha})`;
+            ctx.lineWidth = 6;
+            ctx.beginPath();
+            ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+          } else {
+            shockwaves.splice(i, 1);
+          }
+        }
+
+        // قنابل الماء مع مسار الطيران والنبض
         for (let i = activeBombs.length - 1; i >= 0; i--) {
           const b = activeBombs[i];
           b.timer--;
-          ctx.font = '36px sans-serif';
+
+          const progress = 1 - (b.timer / b.totalTime);
+          b.currentX = b.startX + (b.targetX - b.startX) * progress;
+          const arcY = Math.sin(progress * Math.PI) * 140;
+          b.currentY = (b.startY + (b.targetY - b.startY) * progress) - arcY;
+
+          b.rotation += 0.15;
+          const pulse = 1 + Math.sin(progress * Math.PI * 4) * 0.25;
+
+          ctx.save();
+          ctx.translate(b.currentX, b.currentY);
+          ctx.rotate(b.rotation);
+          ctx.scale(pulse, pulse);
+          ctx.shadowColor = '#38bdf8';
+          ctx.shadowBlur = 15;
+          ctx.font = '42px sans-serif';
           ctx.textAlign = 'center';
-          ctx.fillText('💣', b.x, b.y);
+          ctx.textBaseline = 'middle';
+          ctx.fillText('💣', 0, 0);
+          ctx.restore();
 
           if (b.timer <= 0) {
-            washAt(b.x, b.y, 160);
-            playBeep(120, 0.5);
+            explodeBomb(b.targetX, b.targetY);
             activeBombs.splice(i, 1);
           }
         }
+
+        // رذاذ الماء والرغوة
+        for (let i = 0; i < waterParticles.length; i++) {
+          const p = waterParticles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.alpha -= 0.03;
+          if (p.alpha > 0) {
+            ctx.fillStyle = `rgba(56, 189, 248, ${p.alpha})`;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        waterParticles = waterParticles.filter(p => p.alpha > 0);
+
       } else if (currentGame === 'RUNNER' && runnerRunning) {
         ctx.clearRect(0, 0, width, height);
 
-        // خلفية خط السير
         ctx.fillStyle = '#0f172a';
         ctx.fillRect(0, 0, width, height);
         ctx.strokeStyle = '#38bdf8';
         ctx.lineWidth = 4;
         ctx.strokeRect(30, 0, width - 60, height);
 
-        // تحريك اللاعب
         runnerPlayer.x += (runnerPlayer.targetX - runnerPlayer.x) * 0.15;
         ctx.font = '38px sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText('🧻', runnerPlayer.x, runnerPlayer.y);
 
-        // توليد عناصر
         if (Math.random() < 0.04) {
           runnerItems.push({
             x: 50 + Math.random() * (width - 100),
@@ -666,7 +1023,6 @@
           });
         }
 
-        // تحريك العناصر والاصطدام
         for (let i = runnerItems.length - 1; i >= 0; i--) {
           const item = runnerItems[i];
           item.y += 5;
