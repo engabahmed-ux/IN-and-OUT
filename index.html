@@ -259,25 +259,20 @@
           <option value="سجاد + سيارة (عرض خاص)">باقة كاملة: سجاد + غسيل سيارة</option>
         </select>
         <button type="submit" class="submit-btn">
-          <span>تأكيد الحجز عبر واتساب 💬</span>
+          <span>تأكيد الحجز واستلام الكود عبر واتساب 💬</span>
         </button>
       </form>
     </div>
   </div>
 
   <script>
-    // رابط جوجل شيت لتسجيل الحجوزات
     const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbweP5a-8B1xKKJi-7U1N3Yh9od5LulIPjNXNSOK0gRWsn2P5TUoTYMrBin6b2736e4p/exec";
     
-    // رقم واتساب مغسلة IN AND OUT لاستقبال الرسائل وتأكيد الكود مع العميل
+    // رقم واتساب المغسلة
     const BUSINESS_WHATSAPP_PHONE = "201009204577";
 
-    let generatedDiscountCode = "";
-
-    function generateUniqueCode() {
-      const rand = Math.floor(1000 + Math.random() * 9000);
-      return `INOUT-${rand}`;
-    }
+    // توليد كود عشوائي جديد تماماً عند فتح الصفحة
+    const uniqueDiscountCode = "INOUT-" + Math.floor(1000 + Math.random() * 9000);
 
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
@@ -528,8 +523,7 @@
       if (percent >= 88 && !isGameWon) {
         isGameWon = true;
         setWashingSound(false);
-        generatedDiscountCode = generateUniqueCode();
-        discountBadge.innerText = `كود الخصم: ${generatedDiscountCode} (خصم 20%)`;
+        discountBadge.innerText = `كود الخصم: ${uniqueDiscountCode} (خصم 20%)`;
         setTimeout(() => {
           winModal.classList.add('active');
         }, 350);
@@ -615,7 +609,7 @@
     }
     render();
 
-    // إرسال البيانات لشيت الإكسيل + فتح الواتساب فوراً
+    // إرسال البيانات لشيت Google Sheets وفتح الواتساب مباشرة للعميل
     orderForm.onsubmit = (e) => {
       e.preventDefault();
       const submitBtn = orderForm.querySelector('.submit-btn');
@@ -626,18 +620,17 @@
       const custPhone = document.getElementById('custPhone').value.trim();
       const custAddress = document.getElementById('custAddress').value.trim();
       const serviceType = document.getElementById('serviceType').value;
-      const finalCode = generatedDiscountCode || "INOUT20";
 
       const orderPayload = {
         name: custName,
         phone: custPhone,
         address: custAddress,
         service: serviceType,
-        code: finalCode,
+        code: uniqueDiscountCode,
         timestamp: new Date().toLocaleString('ar-EG')
       };
 
-      // 1. التسجيل في Google Sheets
+      // 1. تسجيل البيانات في Google Sheets
       fetch(GOOGLE_SHEETS_URL, {
         method: "POST",
         mode: "no-cors",
@@ -645,21 +638,20 @@
         body: JSON.stringify(orderPayload)
       }).catch(() => {});
 
-      // 2. تحضير رسالة الواتساب وفتحها للعميل
-      const whatsappMsg = `مرحباً مغسلة IN AND OUT ✨\n` +
-        `لقد لعبت لعبة التنظيف وفزت بكود خصم 20% 🎉\n\n` +
-        `🏷️ *كود الخصم:* ${finalCode}\n` +
+      // 2. تجهيز الرسالة وفتح محادثة الواتساب مباشرة
+      const msg = `مرحباً مغسلة IN AND OUT ✨\n` +
+        `لقد فزت بكود خصم 20% في لعبة التنظيف 🎉\n\n` +
+        `🏷️ *كود الخصم:* ${uniqueDiscountCode}\n` +
         `👤 *الاسم:* ${custName}\n` +
         `📞 *الموبايل:* ${custPhone}\n` +
         `📍 *العنوان:* ${custAddress}\n` +
         `🚗 *الخدمة المطلوبة:* ${serviceType}\n\n` +
-        `أريد تأكيد موعد الاستلام والاستفادة بالخصم.`;
+        `أريد تأكيد موعد الاستلام وتطبيق الخصم.`;
 
-      const whatsappUrl = `https://wa.me/${BUSINESS_WHATSAPP_PHONE}?text=${encodeURIComponent(whatsappMsg)}`;
+      const targetUrl = `https://api.whatsapp.com/send?phone=${BUSINESS_WHATSAPP_PHONE}&text=${encodeURIComponent(msg)}`;
 
-      setTimeout(() => {
-        window.location.href = whatsappUrl;
-      }, 500);
+      // فتح الواتساب
+      window.location.href = targetUrl;
     };
   </script>
 </body>
