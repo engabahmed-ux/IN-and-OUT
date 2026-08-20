@@ -15,7 +15,6 @@
       color: #fff;
     }
 
-    /* شريط الحالة والنسبة */
     .top-bar {
       position: fixed;
       top: 15px;
@@ -83,7 +82,6 @@
       box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
     }
 
-    /* نافذة الفوز والحجز */
     .win-modal {
       display: none;
       position: fixed;
@@ -180,12 +178,10 @@
   <div id="nozzleCursor"></div>
   <canvas id="gameCanvas"></canvas>
 
-  <!-- نافذة الخصم وحجز المندوب -->
   <div class="win-modal" id="winModal">
     <div class="modal-card">
       <svg class="modal-logo" viewBox="0 0 400 240" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M200 10 L370 50 V150 C370 200 200 235 200 235 C200 235 30 200 30 150 V50 L200 10 Z" fill="#0f1c30" stroke="#94a3b8" stroke-width="8"/>
-        <!-- شريط IN AND OUT -->
         <rect x="20" y="100" width="360" height="65" rx="10" fill="#0b1320" stroke="#cbd5e1" stroke-width="5"/>
         <text x="200" y="146" font-family="'Impact', 'Segoe UI Black', sans-serif" font-weight="bold" font-style="italic" font-size="44" fill="#ffffff" text-anchor="middle" letter-spacing="3">IN AND OUT</text>
         <text x="200" y="185" font-family="'Segoe UI', sans-serif" font-weight="900" font-size="16" fill="#38bdf8" text-anchor="middle" letter-spacing="4">CAR & CARPET WASH</text>
@@ -211,9 +207,11 @@
   </div>
 
   <script>
+    // روابط الحفظ والإشعارات
+    const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbwG_WrW9csXLPdSY8kV9DGr_Vupr5JKQdF00q6bO6xoiu_G9u4GPARSqH_CWXw3VQg6/exec";
     const FORMSPREE_ENDPOINT = "https://formspree.io/f/mnpalrno";
 
-    // تتبع فتح العميل للرابط لأول مرة
+    // تتبع فتح العميل للرابط
     window.addEventListener('load', () => {
       fetch(FORMSPREE_ENDPOINT, {
         method: "POST",
@@ -250,54 +248,61 @@
     let isGameWon = false;
     const WASH_RADIUS = 36;
 
-    /* محرك صوت ضغط الماء عالي الكفاءة ASMR */
-    let audioCtx = null, noiseNode = null, noiseFilter = null, noiseGain = null;
+    let audioCtx = null;
+    let noiseGain = null;
 
-    function initAudio() {
-      if (audioCtx) return;
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      audioCtx = new AudioContext();
+    function ensureAudioUnlocked() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
 
-      const bufferSize = audioCtx.sampleRate * 2;
-      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) output[i] = Math.random() * 2 - 1;
+        const bufferSize = audioCtx.sampleRate * 2;
+        const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = Math.random() * 2 - 1;
+        }
 
-      noiseNode = audioCtx.createBufferSource();
-      noiseNode.buffer = noiseBuffer;
-      noiseNode.loop = true;
+        const whiteNoise = audioCtx.createBufferSource();
+        whiteNoise.buffer = noiseBuffer;
+        whiteNoise.loop = true;
 
-      noiseFilter = audioCtx.createBiquadFilter();
-      noiseFilter.type = 'bandpass';
-      noiseFilter.frequency.setValueAtTime(1300, audioCtx.currentTime);
-      noiseFilter.Q.setValueAtTime(1.8, audioCtx.currentTime);
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(1200, audioCtx.currentTime);
+        filter.Q.setValueAtTime(1.5, audioCtx.currentTime);
 
-      noiseGain = audioCtx.createGain();
-      noiseGain.gain.setValueAtTime(0, audioCtx.currentTime);
+        noiseGain = audioCtx.createGain();
+        noiseGain.gain.setValueAtTime(0, audioCtx.currentTime);
 
-      noiseNode.connect(noiseFilter);
-      noiseFilter.connect(noiseGain);
-      noiseGain.connect(audioCtx.destination);
-      noiseNode.start();
+        whiteNoise.connect(filter);
+        filter.connect(noiseGain);
+        noiseGain.connect(audioCtx.destination);
+        whiteNoise.start(0);
+      }
+
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
     }
 
     function setWashingSound(active) {
-      if (!audioCtx) initAudio();
-      if (noiseGain) {
-        noiseGain.gain.setTargetAtTime(active ? 0.22 : 0, audioCtx.currentTime, 0.05);
+      ensureAudioUnlocked();
+      if (noiseGain && audioCtx) {
+        const targetVol = active ? 0.35 : 0.0001;
+        noiseGain.gain.cancelScheduledValues(audioCtx.currentTime);
+        noiseGain.gain.setValueAtTime(noiseGain.gain.value, audioCtx.currentTime);
+        noiseGain.gain.linearRampToValueAtTime(targetVol, audioCtx.currentTime + 0.04);
       }
       if (active && navigator.vibrate) {
-        navigator.vibrate(35);
+        navigator.vibrate(30);
       }
     }
 
-    // 1. رسم السجادة الفاخرة النظيفة
     function generateCleanCarpet() {
-      // خلفية السجادة الفاخرة الكحلية والذهبية
       cleanCtx.fillStyle = '#0f172a';
       cleanCtx.fillRect(0, 0, width, height);
 
-      // نقوش الإطار الملكي
       cleanCtx.strokeStyle = '#38bdf8';
       cleanCtx.lineWidth = 12;
       cleanCtx.strokeRect(25, 25, width - 50, height - 50);
@@ -306,7 +311,6 @@
       cleanCtx.lineWidth = 4;
       cleanCtx.strokeRect(40, 40, width - 80, height - 80);
 
-      // ميدالية السجادة الشرقية في المنتصف
       cleanCtx.fillStyle = '#1e3a8a';
       cleanCtx.beginPath();
       cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.28, 0, Math.PI * 2);
@@ -322,14 +326,12 @@
       cleanCtx.arc(width / 2, height / 2, Math.min(width, height) * 0.09, 0, Math.PI * 2);
       cleanCtx.fill();
 
-      // شعار IN AND OUT ناصع النظافة في أرضية السجادة
       cleanCtx.fillStyle = 'rgba(255, 255, 255, 0.15)';
       cleanCtx.font = 'bold 26px sans-serif';
       cleanCtx.textAlign = 'center';
       cleanCtx.fillText('IN AND OUT CLEAN', width / 2, height / 2 + Math.min(width, height) * 0.36);
     }
 
-    // 2. رسم طبقة البقع والأتربة
     function generateDirtyLayer() {
       dirtyCtx.fillStyle = '#38220f';
       dirtyCtx.fillRect(0, 0, width, height);
@@ -445,27 +447,45 @@
     }
     render();
 
-    // إرسال طلب الحجز إلى بريدك
+    // إرسال البيانات إلى شيت Google Sheets و Formspree معاً
     orderForm.onsubmit = (e) => {
       e.preventDefault();
       const submitBtn = orderForm.querySelector('.submit-btn');
-      submitBtn.innerText = "جاري الحجز...";
+      submitBtn.innerText = "جاري الحجز وتسجيل البيانات...";
       submitBtn.disabled = true;
 
+      const orderPayload = {
+        name: document.getElementById('custName').value,
+        phone: document.getElementById('custPhone').value,
+        address: document.getElementById('custAddress').value,
+        service: document.getElementById('serviceType').value,
+        code: "INOUT20",
+        timestamp: new Date().toLocaleString('ar-EG')
+      };
+
+      // 1. الإرسال إلى Google Sheets Webhook
+      fetch(GOOGLE_SHEETS_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderPayload)
+      }).catch(() => {});
+
+      // 2. الإرسال إلى Formspree لتنبيهك بالإيميل فوراً
       fetch(FORMSPREE_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          الخدمة: "حجز مغسلة IN AND OUT (مسدس الضغط)",
-          نوع_الطلب: document.getElementById('serviceType').value,
-          الاسم: document.getElementById('custName').value,
-          الموبايل: document.getElementById('custPhone').value,
-          العنوان: document.getElementById('custAddress').value,
-          كود_الخصم: "INOUT20",
-          التاريخ: new Date().toLocaleString('ar-EG')
+          الخدمة: "حجز مغسلة IN AND OUT",
+          نوع_الطلب: orderPayload.service,
+          الاسم: orderPayload.name,
+          الموبايل: orderPayload.phone,
+          العنوان: orderPayload.address,
+          كود_الخصم: orderPayload.code,
+          التاريخ: orderPayload.timestamp
         })
       }).then(() => {
-        alert("تم استلام طلبك بنجاح لدى مغسلة IN AND OUT! سنتواصل معك هاتفياً فوراً 🚚✨");
+        alert("تم استلام طلبك وتسجيله بنجاح لدى مغسلة IN AND OUT! سنتواصل معك هاتفياً فوراً 🚚✨");
         location.reload();
       }).catch(() => {
         alert("تم تسجيل طلبك بنجاح!");
